@@ -1,0 +1,125 @@
+
+.icon {
+    margin-bottom: 4px;
+  }
+  
+  .logout-dropdown {
+    margin-left: 0px;
+    padding-left: 0px;
+  }
+  
+  /* Change dropdown arrow (caret) color */
+  .logout-dropdown .dropdown-toggle::after {
+    color: black !important;
+    filter: brightness(0) invert(1); /* Ensures white color */
+  }
+  
+  #navbar-dropdown::after {
+    transform: translateY(2px); /* Adjust this value to move it down */
+    padding-left: 0px;
+    
+  }
+  
+  /* Active link - white color */
+  .navbar-link.active {
+    color: white !important;
+    font-weight: bold;
+    background-color: white !important;
+    color: black !important; /* Ensures the active link stays white background and black color */
+    
+  }
+  
+  /* Hover effect for navbar links */
+  .navbar-link:hover {
+    color: black !important; /* Change to the hover color you want */
+    background-color: white !important;
+    
+  }
+  
+  /* Optional: Active link underline or other effects */
+  .navbar-link.active {
+    border-bottom: 2px solid white; /* Add an underline on active page */
+    
+    
+  }
+/* For the whole dropdown hover effect */
+
+  /* For the individual item hover effect */
+   .dropdown-item:hover {
+    background-color: white ; /* Ensure white background on hover */
+    color: black ; /* Ensure the text turns black on hover */
+  
+  }
+
+  /* Optional: Adding transition for smooth effect */
+  .logout-dropdown .dropdown-item {
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth color transition */
+  }
+
+/* Ensures the background color of the dropdown item is white and text color is black on hover */
+ .dropdown-item:hover {
+  background-color: white ; /* Set background color to white */
+  color: black ; /* Set text color to black */
+}
+
+/* Ensures the background color of the dropdown is white on hover, and text color stays black */
+ .dropdown-toggle {
+  background-color: white ;
+}
+
+/* Ensures the logout text color is white initially */
+.logout-dropdown .dropdown-toggle {
+  color: black ;
+  height: 2px;
+}
+
+/* Optional: Adding transition for smooth effect */
+.logout-dropdown .dropdown-item {
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+#logout{
+  color: white;
+}
+.your-toggle-class:focus {
+  box-shadow: 0 0 0 2px white; /* White glow instead of black */
+}
+.your-toggle-class:focus, 
+.your-toggle-class:active {
+    outline: none; /* Remove default outline */
+    border: 2px solid white; /* Add a white border */
+}
+.navbar-nav .nav-link {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 5px;
+}
+/* Ensure no hover effect on the 'User' span in the dropdown toggle */
+.logout-dropdown .dropdown-toggle {
+  background-color: transparent !important; /* Remove hover background */
+  color: black !important; /* Ensure text color is black */
+}
+
+.logout-dropdown .dropdown-toggle:hover {
+  background-color: transparent !important; /* Remove hover background */
+  color: black !important; /* Keep text color black */
+}
+
+/* Ensure 'User' span does not inherit any hover effects */
+#logout {
+  color: white !important;
+  background-color: transparent !important;
+}
+
+/* Optional: If you want to disable hover on 'User' completely */
+
+
+/* Apply hover effect to dropdown items, not the toggle */
+.logout-dropdown .dropdown-item:hover {
+  background-color: white !important;
+  color: black !important;
+}
