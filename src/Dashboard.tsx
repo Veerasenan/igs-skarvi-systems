@@ -152,7 +152,7 @@ const Dashboard = () => {
           <Card title="Browser Usage" style={{ height: '100%' }}>
             <PieChart width={350} height={300}>
             <Pie data={browserData} dataKey="value" nameKey="name" outerRadius={80} fill="#8884d8" label>
-              {browserData.map((_, index) => (
+              {browserData.map((_browser, index) => (
                 <Cell key={`cell-${index}`} fill={['#1F325C', '#82ca9d', '#ff7300'][index % 3]} />
               ))}
               </Pie>
