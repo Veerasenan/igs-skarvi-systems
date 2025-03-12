@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const InventoryManagement: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="inventory-container">
+    <Container className="inventory-container" style={{ marginTop: "30px" }}>
 
       <Row className="inventory-grid g-4">
         {/* Configure Inventory Tanks */}

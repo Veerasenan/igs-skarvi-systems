@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 const EndOfDay: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="end-of-day-container">
+    <Container className="end-of-day-container" style={{ marginTop: "30px" }}>
 
       <Row className="end-of-day-grid g-4">
         {/* Platts API Current Data */}

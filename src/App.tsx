@@ -17,7 +17,6 @@ const App: React.FC = () => {
   return (
     <Router>
       <CustomNavbar /> 
-    
       {/* Use CustomNavbar here */}
       <Routes>
         <Route path="/" element={<Dashboard />} />

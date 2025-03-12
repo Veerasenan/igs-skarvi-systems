@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Breadcrumb } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "../components/Papertrades.css"; // Ensure styles are applied correctly
@@ -10,8 +10,12 @@ import { faCirclePlus, faPenToSquare, faCopy, faExchangeAlt, faCheckCircle, faCl
 const Papertrades: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="cards-container">
-
+    <Container className="cards-container" style={{ marginTop: "-12px" }}>
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb className="mt-3">
+        <Breadcrumb.Item  active>Trades</Breadcrumb.Item> {/* Link to Trades */}
+        <Breadcrumb.Item href="/paper-trades">Paper Trades</Breadcrumb.Item> {/* Current Page */}
+      </Breadcrumb>
       <Row className="cards-grid g-4">
         {/* Add New Trades and Create a Physical Entry */}
         <Col xs={12} sm={6} md={4} lg={4}>

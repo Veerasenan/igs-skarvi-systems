@@ -107,14 +107,14 @@ const Dashboard = () => {
     { name: 'Project Fireball', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Cancelled', assignee: 'William Harris' },
     { name: 'Project Hades', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'Sharon Lessman' },
     { name: 'Project Nitro', startDate: '01/01/2023', endDate: '31/06/2023', status: 'In progress', assignee: 'Vanessa Tucker' },
-    { name: 'Project sam', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
-    { name: 'Project Phoenix', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
-    { name: 'Project Phoenix', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
+    { name: 'Project sam', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William jones' },
+    { name: 'Project John', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William james' },
+    { name: 'Project Harvey', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William bruce' },
   ];
   
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" >
     
 
       {/* Row 1: Recent Movement (50% of screen width) */}

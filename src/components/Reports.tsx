@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const Reports: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="reports-container">
+    <Container className="reports-container" style={{ marginTop: "30px" }}>
 
       <Row className="reports-grid g-4">
         {/* Report - Heavy Products */}

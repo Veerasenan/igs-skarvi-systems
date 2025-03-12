@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Breadcrumb  } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import "./components/Physicaltrades.css";
@@ -9,7 +9,12 @@ const PhysicalTrades: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Container className="physical-trades-container">
+    <Container className="physical-trades-container" style={{ marginTop: "-12px" }}>
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb className="mt-3">
+        <Breadcrumb.Item active>Trades</Breadcrumb.Item> {/* Link to Trades */}
+        <Breadcrumb.Item href="/physical-trades">Physical Trades</Breadcrumb.Item> {/* Current Page */}
+      </Breadcrumb>
       <Row className="physical-trades-grid g-4">
         
         {/* Add Trade */}
