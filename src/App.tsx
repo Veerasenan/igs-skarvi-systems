@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CustomNavbar from "./components/Navbar"; // Import your custom navbar
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Dashboard from "./Dashboard";
+import Homeboard from "./Homeboard";
 import Physicaltrades from "./Physicaltrades";
 import Papertrades from "./components/Papertrades";
 import Chartering from "./components/Chartering";
@@ -19,7 +19,7 @@ const App: React.FC = () => {
       <CustomNavbar /> 
       {/* Use CustomNavbar here */}
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Homeboard/>} />
         <Route path="/physical-trades" element={<Physicaltrades/>} />
         <Route path="/paper-trades" element={<Papertrades/>} />
         <Route path="/chartering" element={<Chartering/>} />
