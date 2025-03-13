@@ -174,7 +174,7 @@ const Dashboard = () => {
       </Col>
         <Col xs={24} sm={12} md={12}>
           <Card title="Monthly Sales" style={{ height: '100%' }}>
-            <BarChart width={600} height={590} data={salesData}>
+            <BarChart width={580} height={570} data={salesData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
