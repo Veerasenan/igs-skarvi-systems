@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const OperationsAndLogistics: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="operations-logistics-container">
+    <Container className="operations-logistics-container" style={{ marginTop: "30px" }}>
 
       <Row className="operations-logistics-grid g-4">
         {/* Automated Cargo/Vessel Operations Cargoes */}

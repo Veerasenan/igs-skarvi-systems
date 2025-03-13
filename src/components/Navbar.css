@@ -4,8 +4,10 @@
   }
   
   .logout-dropdown {
-    margin-left: 0px;
-    padding-left: 0px;
+
+    padding: 0 !important;
+    margin: 0 !important;
+    width: auto !important;
   }
   
   /* Change dropdown arrow (caret) color */
@@ -15,7 +17,7 @@
   }
   
   #navbar-dropdown::after {
-    transform: translateY(2px); /* Adjust this value to move it down */
+    transform: translateY(1px); /* Adjust this value to move it down */
     padding-left: 0px;
     
   }
@@ -96,7 +98,7 @@
 .navbar-nav .nav-link:hover {
   background-color: white !important;
   color: black !important;
-  border-radius: 5px;
+  border-radius: 2px;
 }
 /* Ensure no hover effect on the 'User' span in the dropdown toggle */
 .logout-dropdown .dropdown-toggle {
@@ -110,16 +112,114 @@
 }
 
 /* Ensure 'User' span does not inherit any hover effects */
-#logout {
-  color: white !important;
-  background-color: transparent !important;
+  #logout {
+    color: white !important;
+    background-color: transparent !important;
+  }
+
+/* Default color for Trades dropdown title */
+/* Default color for Trades dropdown title */
+#navbar-dropdown-trades {
+  color: white; /* Set default color to white */
 }
 
-/* Optional: If you want to disable hover on 'User' completely */
+/* Trades Dropdown hover effect (text color turns black on hover) */
+.trades-dropdown:hover > .nav-link {
+  color: black; /* Ensures color turns black when hovered */
+}
 
+/* Ensure dropdown menu shows on hover */
+.trades-dropdown:hover .dropdown-menu {
+  display: block;
+  background-color: #1F325C;
+  border-radius: 5px;
+}
 
-/* Apply hover effect to dropdown items, not the toggle */
-.logout-dropdown .dropdown-item:hover {
-  background-color: white !important;
-  color: black !important;
+/* Individual dropdown item hover effect */
+.trades-dropdown-item:hover {
+  background-color: #bfdbf7 !important; /* Ensure hover background color */
+  color: black !important; /* Ensure text turns black on hover */
+  border-radius: 5px;
+}
+
+/* Optional: Smooth transition for the hover effect */
+.trades-dropdown-item {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Prevents dropdown from closing on hover */
+.trades-dropdown .dropdown-menu {
+  display: none;
+}
+
+.trades-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Optional: Adjust active link color */
+.trades-dropdown-item.active {
+  background-color: #bfdbf7;
+  color: black;
+}
+
+/* Ensure no hover effect on the dropdown toggle */
+.trades-dropdown .dropdown-toggle:hover {
+  background-color: transparent; /* Remove hover background */
+  color: black; /* Keep text color black */
+}
+
+/* Ensure the dropdown items do not inherit unwanted hover effects */
+.trades-dropdown .dropdown-item:hover {
+  background-color: #bfdbf7 !important; /* Ensure hover background color */
+  color: black !important; /* Ensure text turns black on hover */
+  border-radius: 5px;
+}
+/* Ensure dropdown closes when not hovered */
+.trades-dropdown:not(:hover) .dropdown-menu {
+  display: none;
+}
+/* Custom styles for the Logout button */
+.logout-item {
+  padding: -12px -12px; /* Reduce padding */
+  min-width: 0px !important; /* Limit minimum width */
+  height: 28px; /* Reduce height slightly */
+  border: none; /* Remove any border */
+  font-size: 16px; /* Adjust font size if needed */
+  line-height: normal; /* Adjust line height */
+}
+/* Custom styles for the Logout button */
+.logout-item {
+  padding: 2px 6px !important; /* Adjust padding */
+  width: auto !important; /* Let the width adjust to the content */
+  min-width: 60px !important; /* Set a reasonable minimum width */
+  height: 26px !important; /* Adjust height */
+  border: none !important; /* Remove any border */
+  font-size: 14px !important; /* Adjust font size */
+  text-align: center !important; /* Center the text */
+  background-color: transparent !important; /* Remove background color */
+  color: black !important; /* Set text color */
+}
+
+/* Remove Bootstrap's default hover styles */
+.logout-item:hover {
+  background-color: transparent !important; /* Remove hover background */
+  color: black !important; /* Keep text color consistent */
+}
+
+/* Adjust the dropdown menu alignment */
+.logout-dropdown .dropdown-menu {
+  top: 100%;
+  right: -12px !important; /* Align to the right */
+  left: auto !important; /* Override default left alignment */
+  min-width: 120px !important; /* Set a reasonable width for the dropdown */
+  padding: 0 !important; /* Remove padding */
+  margin: 0 !important; /* Remove margin */
+  margin-top: -8px !important;
+}
+
+/* Ensure the dropdown items are properly aligned */
+.logout-dropdown .dropdown-item {
+  padding: 2px 36px !important; /* Adjust padding */
+  width: 100% !important; /* Ensure full width */
+  text-align: left !important; /* Align text to the left */
 }

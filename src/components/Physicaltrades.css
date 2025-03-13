@@ -132,3 +132,13 @@
 .physical-trades-card {
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for transform and box-shadow */
 }
+/* Custom Breadcrumb Link Styles */
+.breadcrumb-item a {
+  color: #6c757d; /* Change this to your desired color (e.g., gray) */
+  text-decoration: none; /* Remove underline */
+}
+
+.breadcrumb-item a:hover {
+  color: #0056b3; /* Change this to your desired hover color (e.g., darker blue) */
+  text-decoration: underline; /* Optional: Add underline on hover */
+}

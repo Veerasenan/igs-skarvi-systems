@@ -136,3 +136,19 @@
   transform: scale(1.05); /* Slightly scale up the card */
   box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2); /* Enhance the shadow on hover */
 }
+/* Custom Breadcrumb Separator Styles */
+.breadcrumb > .breadcrumb-item + .breadcrumb-item::before {
+  content: ">"; /* Replace the default slash with a forward arrow */
+  padding: 0 0.3rem; /* Add spacing around the separator */
+  color: #6c757d; /* Optional: Change the separator color */
+}
+/* Custom Breadcrumb Link Styles */
+.breadcrumb-item a {
+  color: #6c757d; /* Change this to your desired color (e.g., gray) */
+  text-decoration: none; /* Remove underline */
+}
+
+.breadcrumb-item a:hover {
+  color: #1F325C; /* Change this to your desired hover color (e.g., darker blue) */
+  text-decoration: underline; /* Optional: Add underline on hover */
+}

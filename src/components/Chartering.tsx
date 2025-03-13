@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const Chartering: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <Container className="chartering-container">
+    <Container className="chartering-container" style={{ marginTop: "30px" }}>
       
 
       <Row className="chartering-grid g-4">

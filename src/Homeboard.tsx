@@ -107,14 +107,14 @@ const Dashboard = () => {
     { name: 'Project Fireball', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Cancelled', assignee: 'William Harris' },
     { name: 'Project Hades', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'Sharon Lessman' },
     { name: 'Project Nitro', startDate: '01/01/2023', endDate: '31/06/2023', status: 'In progress', assignee: 'Vanessa Tucker' },
-    { name: 'Project sam', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
-    { name: 'Project Phoenix', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
-    { name: 'Project Phoenix', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William Harris' },
+    { name: 'Project sam', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William jones' },
+    { name: 'Project John', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William james' },
+    { name: 'Project Harvey', startDate: '01/01/2023', endDate: '31/06/2023', status: 'Done', assignee: 'William bruce' },
   ];
   
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" >
     
 
       {/* Row 1: Recent Movement (50% of screen width) */}
@@ -151,7 +151,9 @@ const Dashboard = () => {
         <Col xs={24} sm={8} md={8}>
           <Card title="Browser Usage" style={{ height: '100%' }}>
             <PieChart width={350} height={300}>
-              <Pie data={browserData} dataKey="value" nameKey="name" outerRadius={80} fill="#8884d8" label>
+
+            <Pie data={browserData} dataKey="value" nameKey="name" outerRadius={80} fill="#8884d8" label>
+
               {browserData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={['#1F325C', '#82ca9d', '#ff7300'][index % 3]} />
               ))}

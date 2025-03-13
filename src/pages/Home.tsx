@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import Dashboard from "../Dashboard";
+import Homeboard from "../Homeboard";
 import Physicaltrades from "../Physicaltrades";
 import Papertrades from "../components/Papertrades";
 import Chartering from "../components/Chartering";
@@ -13,7 +13,7 @@ const Home = () => {
     return(
 <>
 <Navbar/>
-<Dashboard/>
+<Homeboard/>
 <Physicaltrades/>
 <Papertrades/>
 <Chartering/>
