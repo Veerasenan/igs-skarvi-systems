@@ -36,8 +36,8 @@ const PhysicalTrades: React.FC = () => {
           <Card className="physical-trades-card">
             <Card.Body>
               <FontAwesomeIcon icon={faPenToSquare} className="physical-trades-icon" />
-              <h3 className="physical-trades-card-title">Edit Trade (Odysseas)</h3>
-              <p className="physical-trades-card-text">Modify existing Odysseas trade details</p>
+              <h3 className="physical-trades-card-title">Edit Trade (Dirty)</h3>
+              <p className="physical-trades-card-text">Modify existing trade details</p>
               <Button className="physical-trades-launch-button" onClick={() => navigate("/development")}>
                 Launch
               </Button>
@@ -49,8 +49,8 @@ const PhysicalTrades: React.FC = () => {
           <Card className="physical-trades-card">
             <Card.Body>
               <FontAwesomeIcon icon={faPenToSquare} className="physical-trades-icon" />
-              <h3 className="physical-trades-card-title">Edit Trade (Odysseas)</h3>
-              <p className="physical-trades-card-text">Modify existing Odysseas trade details</p>
+              <h3 className="physical-trades-card-title">Edit Trade (Clean)</h3>
+              <p className="physical-trades-card-text">Modify existing trade details</p>
               <Button className="physical-trades-launch-button" onClick={() => navigate("/Development")}>
                 Launch
               </Button>
