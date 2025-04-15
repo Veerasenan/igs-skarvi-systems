@@ -1,0 +1,192 @@
+/* Reset some default styles for better consistency */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif; /* Set Roboto font for body */
+  background-color: #f4f5f7;
+  color: #333;
+  
+}
+
+/* Apply 'Roboto' font globally for all content */
+*,
+*::before,
+*::after {
+  font-family: 'Roboto', sans-serif; /* Ensures Roboto font for all content */
+}
+
+/* Container and general styles */
+.container {
+  padding: 5px;
+}
+
+/* General Card Styling */
+.ant-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ant-card-body {
+  padding: 16px;
+}
+
+.ant-card-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Responsive Grid System */
+@media (max-width: 1200px) {
+  .ant-col {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 992px) {
+  .ant-row {
+    margin: 0;
+  }
+
+  .ant-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    padding: 8px;
+  }
+
+  .ant-card {
+    margin-bottom: 24px;
+  }
+}
+
+/* Row 1: Recent Movement */
+.ant-row .ant-col span {
+  padding: 12px;
+}
+
+.ant-card {
+  height: 100%;
+}
+
+.card-content {
+  height: 100%;
+}
+
+.card-content .ant-card-body {
+  padding: 16px;
+}
+
+.responsive-container {
+  margin-top: 24px;
+}
+
+/* Calendar and World Map */
+.ant-card-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.calendar-card,
+.world-map-card {
+  margin-bottom: 24px;
+}
+
+/* Pie Chart */
+.pie-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+}
+
+/* BarChart and Table */
+.latest-projects-table .ant-table-container {
+  height: 200px;
+  overflow: auto;
+}
+
+.bar-chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  margin-top: 35px;
+  font-size: 18px;
+  color: #888;
+}
+
+/* Footer Styling */
+footer {
+  padding: 10px;
+  background-color: #fff;
+  color: #888;
+  font-size: 14px;
+  padding-bottom: 2px;
+}
+
+footer .text-muted {
+  color: #aaa;
+}
+
+@media (max-width: 576px) {
+  .footer {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ant-card-body {
+    padding: 12px;
+  }
+}
+
+h1 {
+  color: #000080;
+  text-align: center;
+  font-family: 'Roboto', sans-serif; /* Using 'Roboto' for the heading */
+  margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
+}
+/* Ensuring month titles and other elements also use 'Roboto' font */
+.month-title, 
+.status-done, 
+.status-cancelled, 
+.status-in-progress, 
+.ant-card-body, 
+footer,
+h1,
+.ant-card-title {
+  font-family: 'Roboto', sans-serif; /* Apply 'Roboto' font to specific elements */
+}
+.status-button {
+  display: inline-block;
+  height: 20px;  /* Set fixed height for the button */
+  line-height: 20px;  /* Center the text vertically */
+  padding: 0 6px;  /* Optional, keep padding for horizontal space */
+  font-size: 10px;  /* Reduce text size */
+  border-radius: 3px;
+  text-align: center;
+}
+
+.status-done {
+  background-color: green;
+  color: white;
+}
+
+.status-cancelled {
+  background-color: red;
+  color: white;
+}
+
+.status-in-progress {
+  background-color: orange;
+  color: white;
+}

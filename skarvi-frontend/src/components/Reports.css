@@ -1,0 +1,135 @@
+/* Fix for title margin */
+.reports-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1F325C; /* Dark lavender */
+    text-align: center;
+    margin-top: 25px; /* Add margin to move the title down */
+    margin-bottom: 20px; /* Added margin */
+}
+
+/* Card Styling */
+.reports-card {
+    text-align: center;
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    height: 230px; /* Adjust this height as necessary */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items from the top */
+    align-items: center;
+    padding: 15px; /* Adjust the padding as needed */
+}
+
+/* Icon styling */
+.reports-card-icon {
+    font-size: 28px;
+    color: #1F325C; /* Lavender */
+    font-weight: bold;
+    margin-bottom: 10px; /* Adjusted spacing */
+}
+
+/* Title inside the card */
+.reports-card-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1F325C; /* Lavender */
+    margin-top: 10px; /* Space between title and icon */
+    margin-bottom: 5px;
+}
+
+/* Text inside the card */
+.reports-card-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000; /* Black text */
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+/* Fix for Launch Button */
+.reports-launch-button {
+    background-color: #1F325C; /* Dark lavender */
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 6px 12px;
+    margin-top: auto; /* Push to bottom */
+    transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover effect without changing background color */
+.reports-launch-button:hover {
+    background-color: #1F325C; /* Keep the same background color */
+    color: #fff; /* Ensure text color stays the same */
+    transform: scale(1.15); /* Slightly increase the size */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    cursor: pointer; /* Add a pointer cursor for clarity */
+}
+
+/* Fix for Responsive Layout */
+@media (max-width: 768px) {
+    .reports-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .reports-card {
+        width: 100%; /* Full width in small screens */
+        max-width: 300px; /* Ensure max width */
+    }
+}
+
+/* Font style for card titles, text, and buttons */
+.reports-card-title, .reports-card-text, .reports-launch-button, .reports-title {
+    font-family: 'Roboto', sans-serif; /* Use the same font-family as in the global styles */
+}
+
+/* Styling for Launch Button */
+.reports-launch-button {
+    background-color: #1F325C;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 6px 12px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+}
+
+.reports-launch-button:hover {
+    background-color: #1F325C;
+    color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* Card Text and Title Styling */
+.reports-card-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1F325C;
+}
+
+.reports-card-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+/* Hover effect for cards */
+/* Card Styling */
+.reports-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for transform and box-shadow */
+}
+
+/* Hover effect for reports card */
+.reports-card:hover {
+    transform: scale(1.05); /* Slightly scale up the card */
+    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2); /* Enhance the shadow on hover */
+}
