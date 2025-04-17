@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from .models import HedgingSpr, FwdPriceQuotesValues
@@ -23,7 +23,7 @@ class HedgingAPIView(APIView):
     API endpoint for creating new hedging trades
     Requires authentication via session cookies and CSRF token
     """
-    authentication_classes = [CsrfEnforcedSessionAuthentication]
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -35,7 +35,7 @@ class HedgingAPIView(APIView):
                 )
 
             try:
-                data = json.loads(request.body)
+                data = request.data
             except json.JSONDecodeError:
                 return Response(
                     {"error": "Invalid JSON data"},
@@ -59,9 +59,9 @@ class HedgingAPIView(APIView):
                 fixed_price = float(data.get('fixedPrice', '0').replace(',', ''))
 
                 leg1 = 0
-                if data.get('pricingbasis_leg1'):
+                if data.get('pricingQuotation'):
                     avg_price = FwdPriceQuotesValues.objects.filter(
-                        quote_name=data['pricingbasis_leg1'],
+                        quote_name=data['pricingQuotation'],
                         period_from=data['pricingPeriodFrom'],
                         period_to=data['To']
                     ).aggregate(Avg('value'))['value__avg'] or 0
@@ -120,7 +120,7 @@ class HedgingListAPIView(ListAPIView):
     Supports filtering by query parameters
     """
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = HedgingSprSerializer
 
     def get_queryset(self):
@@ -145,10 +145,3 @@ class HedgingListAPIView(ListAPIView):
             queryset = queryset.filter(counterparty__icontains=counterparty)
 
         return queryset
-
-class CsrfEnforcedSessionAuthentication(SessionAuthentication):
-    def enforce_csrf(self, request):
-        return super().enforce_csrf(request)
-    
-
-    

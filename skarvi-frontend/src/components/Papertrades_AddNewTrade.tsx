@@ -53,6 +53,7 @@ const AddNewTrade: React.FC = () => {
       .split('; ')
       .find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
   };
+  console.log('CSRF #### Token:', getCSRFToken());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -72,45 +73,41 @@ const AddNewTrade: React.FC = () => {
     }
     return null;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleSubmit called');
     setError(null);
     setSuccess(false);
-
+  
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
       return;
     }
-
+  
     setIsSubmitting(true);
-    const csrfToken = getCSRFToken();
-
+  
+    const accessToken = localStorage.getItem("access_token"); // <- get from localStorage or context
+  
     try {
       const response = await fetch(`${API_URL}/api/hedging/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
+          'Authorization': `Bearer ${accessToken}`,  // <- Send token in Authorization header
+          // 'X-CSRFToken': csrfToken, // Not needed if using token auth
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          quantity: formData.quantityBBL,
-          quantity_mt: formData.quantityMT,
-          stop_loss_limit: '',
-          settlementValue: '',
-          floatingPrice: ''
-        })
+        body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-
+      console.log('Fetch response:', response);
+      console.log('Fetch data:', data);
+  
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create trade');
       }
-
+  
       setSuccess(true);
       setFormData({
         inventory: "",
@@ -131,13 +128,14 @@ const AddNewTrade: React.FC = () => {
         dueDate: "",
         emailID: ""
       });
-
+  
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setIsSubmitting(false);
     }
   };
+    console.log('handleSubmit #### Token:', handleSubmit);
 
   return (
     <div style={{ 

@@ -1,4 +1,3 @@
-# models.py
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -18,12 +17,12 @@ class HedgingSpr(models.Model):
         ('FlatPrice', 'Flat Price'),
         ('Spread', 'Spread'),
     )
-    
+
     TRANSACTION_TYPES = (
         ('Bought', 'Bought'),
         ('Sold', 'Sold'),
     )
-    
+
     group_name = models.CharField(max_length=255)
     leg1_fix = models.DecimalField(max_digits=20, decimal_places=2)
     leg2_fix = models.DecimalField(max_digits=20, decimal_places=2)
