@@ -67,6 +67,8 @@ class HedgingSpr(models.Model):
     delete_status = models.BooleanField(default=False)
     DateCreated = models.DateTimeField(auto_now_add=True)
     DateModified = models.DateTimeField(auto_now=True)
+    emailID = models.EmailField(max_length=254, blank=True, null=True)
+    duedate = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.Tran_Ref_No} - {self.type}"

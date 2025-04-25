@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { loginUser } from "./login"; // 
+import { loginUser } from "./login";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [tokens, setTokens] = useState(null);
+  const [token, setTokens] = useState<any>(null);
 
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await loginUser(username, password);
@@ -18,10 +21,16 @@ const LoginForm = () => {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
+      console.log("Access Token:", response.data.access);
+      console.log("Refresh Token:", response.data.refresh);
+
+
+
       setTokens(response.data);
       setError("");
 
-    } catch (err) {
+      navigate('/dashboard');  // after login redirect to HomePage
+    } catch (err: any) {
       console.error(err.response?.data || err.message);
       setError("Invalid username or password");
     }
@@ -54,14 +63,6 @@ const LoginForm = () => {
       </form>
 
       {error && <p className="text-red-500 mt-4">{error}</p>}
-
-      {tokens && (
-        <div className="mt-4">
-          <h2 className="text-green-600">Login Successful!</h2>
-          <p><strong>Access Token:</strong> {tokens.access}</p>
-          <p><strong>Refresh Token:</strong> {tokens.refresh}</p>
-        </div>
-      )}
     </div>
   );
 };
