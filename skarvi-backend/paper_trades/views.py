@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
 
 
 
@@ -39,8 +41,6 @@ def validate_token(request):
     Custom API to validate a token. You might use this to check if the token is still valid
     without refreshing it.
     """
-    from rest_framework_simplejwt.tokens import RefreshToken
-    from rest_framework.exceptions import AuthenticationFailed
 
     try:
         token = request.data.get("token")
@@ -54,14 +54,22 @@ def validate_token(request):
         raise AuthenticationFailed("Token is invalid or expired")
 
 
-
 class HedgingAPIView(APIView):
     """
-    API endpoint for creating and updating hedging trades.
+    API endpoint for creating, updating, partially updating, and deleting hedging trades.
     """
-
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_trade(self, id):
+        HedgingSpr.objects.get(id=id)
+        print("Trade not found with ID:", id)
+        try:
+            return HedgingSpr.objects.get(id=id)
+
+
+        except HedgingSpr.DoesNotExist:
+            return None
 
     @swagger_auto_schema(
         request_body=HedgingSprSerializer,
@@ -71,7 +79,6 @@ class HedgingAPIView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
-            trade_id = data.get('id')
             required_fields = [
                 'inventory', 'boughtSold', 'fixedPrice',
                 'pricingPeriodFrom', 'To', 'tradeCreatedOn'
@@ -102,7 +109,6 @@ class HedgingAPIView(APIView):
                         leg1 = (fixed_price - float(avg_price)) * quantity
 
                 hedging = HedgingSpr.objects.create(
-                    trade_id = data.get('id', None),
                     Tran_Ref_No=data['inventory'],
                     type=data['boughtSold'],
                     fixed_price=fixed_price,
@@ -142,91 +148,152 @@ class HedgingAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
-    request_body=HedgingSprSerializer,
-    responses={
-        200: openapi.Response(
-            description="Trade updated successfully.",
-            schema=HedgingSprSerializer()
-        ),
-        400: "Bad Request",
-        404: "Trade Not Found",
-        500: "Internal Server Error"
-    },
-    operation_summary="Update an existing hedging trade",
-    operation_description="Provide the full payload (including 'id') to update a hedging trade."
+        request_body=HedgingSprSerializer,
+        responses={200: HedgingSprSerializer},
+        operation_description="Update an existing hedging trade by ID.",
+        manual_parameters=[
+            openapi.Parameter('trade_id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
+        ]
     )
-    def put(self, request, *args, **kwargs):
-        try:
-            data = request.data
-
-            trade_id = data.get('id')
-            if not trade_id:
-                return Response(
-                    {"error": "Trade ID is required for updating."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
+    def put(self, request, id, *args, **kwargs):  
             try:
-                trade = HedgingSpr.objects.get(id=trade_id)
-            except HedgingSpr.DoesNotExist:
-                return Response(
-                    {"error": "Trade not found."},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                data = request.data
+                try:
+                    trade = HedgingSpr.objects.get(id=id)
+                    print("Trade found:", trade)
+                except HedgingSpr.DoesNotExist:
+                    return Response(
+                        {"error": "Trade not found."},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
 
-            with transaction.atomic():
-                quantity = float(data.get('quantityBBL', '0').replace(',', ''))
-                quantity_mt = float(data.get('quantityMT', '0').replace(',', ''))
-                fixed_price = float(data.get('fixedPrice', '0').replace(',', ''))
+                with transaction.atomic():
+                    quantity = float(data.get('Quantity', '0'))
+                    quantity_mt = float(data.get('Quantity_mt', '0'))
+                    fixed_price = float(data.get('fixedPrice', '0'))
 
-                leg1 = 0
-                if data.get('pricingQuotation'):
-                    avg_price = FwdPriceQuotesValues.objects.filter(
-                        quote_name=data['pricingQuotation'],
-                        period_from=data['pricingPeriodFrom'],
-                        period_to=data['To']
-                    ).aggregate(Avg('value'))['value__avg'] or 0
+                    leg1 = 0
+                    if data.get('pricing_basis1'):
+                        avg_price = 0
+                        if data['boughtSold'] == 'Bought':
+                            leg1 = (float(avg_price) - fixed_price) * quantity
+                        else:
+                            leg1 = (fixed_price - float(avg_price)) * quantity
 
-                    if data['boughtSold'] == 'Bought':
-                        leg1 = (float(avg_price) - fixed_price) * quantity
-                    else:
-                        leg1 = (fixed_price - float(avg_price)) * quantity
+                    traded_on_date = (data['tradeCreatedOn'])
+                    pricing_period_from_date = (data['pricingPeriodFrom'])
+                    pricing_period_to_date = (data['To'])
 
-                # Update trade fields
-                trade.id = trade_id
-                trade.Tran_Ref_No = data['inventory']
-                trade.type = data['boughtSold']
-                trade.fixed_price = fixed_price
-                trade.pricing_period_from = data['pricingPeriodFrom']
-                trade.pricing_period_to = data['To']
-                trade.traded_on = datetime.strptime(data['tradeCreatedOn'], '%Y-%m-%d').date()
-                trade.Quantity = quantity
-                trade.Quantity_mt = quantity_mt
-                trade.broker_name = data.get('brokerName', '')
-                trade.counterparty = data.get('counterparty', 'ICE EUROPE')
-                trade.group_name = data.get('groupName', '')
-                trade.pricing_basis1 = data.get('pricingQuotation', '')
-                trade.broker_charges = data.get('brokerCharges', '')
-                trade.charges_unit = data.get('brokerChargesUnit', '')
-                trade.emailID = data.get('emailID', '')
-                trade.duedate = data.get('duedate', '')
-                trade.leg1_fix = leg1
-                trade.traded_by = request.user
+                    # Update trade fields
+                    trade.Tran_Ref_No = data['inventory']
+                    trade.type = data['boughtSold']
+                    trade.fixed_price = data.get('fixed_price', fixed_price)
+                    trade.pricing_period_from = data.get('pricing_period_from', pricing_period_from_date)
+                    trade.pricing_period_to = data.get('pricing_period_to', trade.pricing_period_to)
+                    trade.traded_on = data.get('trade_created_on', trade.traded_on)
+                    trade.Quantity = data.get('Quantity', quantity)
+                    trade.Quantity_mt = data.get('Quantity_mt', quantity_mt)
+                    trade.broker_name = data.get('broker_name', trade.broker_name)
+                    trade.counterparty = data.get('counterparty', trade.counterparty)
+                    trade.group_name = data.get('group_name',trade.group_name)
+                    trade.pricing_basis1 = data.get('pricing_basis1', trade.pricing_basis1)
+                    trade.broker_charges = data.get('broker_charges', trade.broker_charges)
+                    trade.charges_unit = data.get('broker_charges_unit', trade.charges_unit)
+                    trade.emailID = data.get('email_id', trade.emailID)
+                    trade.duedate = data.get('due_date', trade.duedate)
+                    trade.leg1_fix = data.get('leg1_fix', trade.leg1_fix)
+                    trade.traded_by = request.user
 
-                trade.save()
+                    trade.save()
 
-                serializer = HedgingSprSerializer(trade)
+                    serializer = HedgingSprSerializer(trade)
+                    return Response({
+                        "status": "success",
+                        "message": "Trade updated successfully",
+                        "data": serializer.data
+                    }, status=status.HTTP_200_OK)
+
+            except ValueError as e:
+                print(f"ValueError: {e}")
+                return Response({"error": f"Invalid numeric value: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                print(f"Exception: {e}")
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def patch(self, request, trade_id, *args, **kwargs):
+        try:
+            trade = self.get_trade(trade_id)
+            if not trade:
+                return Response({"error": "Trade not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = HedgingSprSerializer(trade, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
                 return Response({
                     "status": "success",
-                    "message": "Trade updated successfully",
+                    "message": "Trade partially updated successfully",
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        except ValueError as e:
-            return Response({"error": f"Invalid numeric value: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @swagger_auto_schema(
+        responses={204: "Trade deleted successfully", 404: "Trade Not Found"},
+        operation_description="Delete a hedging trade by ID.",
+        manual_parameters=[
+            openapi.Parameter('trade_id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
+        ]
+    )
+    def delete(self, request, trade_id, *args, **kwargs):
+        try:
+            trade = self.get_trade(trade_id)
+            if not trade:
+                return Response({"error": "Trade not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            trade.delete()
+            return Response({
+                "status": "success",
+                "message": "Trade deleted successfully"
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+class HedgingListAPIView(ListAPIView):
+    """
+    API endpoint for listing all hedging trades
+    Requires authentication via JWT tokens
+    Supports filtering by query parameters
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = HedgingSprSerializer
+
+    def get_queryset(self):
+        queryset = HedgingSpr.objects.all().order_by('-DateCreated')
+
+        # Filter by type
+        trade_type = self.request.query_params.get('type')
+        if trade_type in ['Bought', 'Sold']:
+            queryset = queryset.filter(type=trade_type)
+
+        # Filter by trade date
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        if date_from:
+            queryset = queryset.filter(traded_on__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(traded_on__lte=date_to)
+
+        # Filter by counterparty
+        counterparty = self.request.query_params.get('counterparty')
+        if counterparty:
+            queryset = queryset.filter(counterparty__icontains=counterparty)
+
+        return queryset
+    
 class HedgingListAPIView(ListAPIView):
     """
     API endpoint for listing all hedging trades

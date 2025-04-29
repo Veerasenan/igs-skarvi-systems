@@ -3,46 +3,45 @@ import { Container, Form, Row, Col, Button, Spinner, Alert } from "react-bootstr
 
 const API_URL = 'http://127.0.0.1:8000';
 
-
 interface FormData {
     inventory: string;
-    quantityMT: string;
-    brokerName: string;
-    boughtSold: string;
-    fixedPrice: string;
-    brokerChargesUnit: string;
+    Quantity_mt: string;
+    broker_name: string;
+    bought_sold: string;
+    fixed_price: string;
+    broker_charges_unit: string;
     counterparty: string;
-    pricingPeriodFrom: string;
-    brokerCharges: string;
-    groupName: string;
-    tradedBy: string;
-    pricingQuotation: string;
-    tradeCreatedOn: string;
-    quantityBBL: string;
+    pricing_period_from: string;
+    broker_charges: string;
+    group_name: string;
+    traded_by: string;
+    pricing_quotation: string;
+    trade_created_on: string;
+    quantitybbL: string;
     To: string;
-    duedate: string;
-    emailID: string;
+    due_date: string;
+    email_id: string;
 }
 
 const AddNewTrade: React.FC = () => {
     const [formData, setFormData] = useState<FormData>({
         inventory: "",
-        quantityMT: "",
-        brokerName: "",
-        boughtSold: "",
-        fixedPrice: "",
-        brokerChargesUnit: "",
+        Quantity_mt: "",
+        broker_name: "",
+        bought_sold: "",
+        fixed_price: "",
+        broker_charges_unit: "",
         counterparty: "",
-        pricingPeriodFrom: "",
-        brokerCharges: "",
-        groupName: "",
-        tradedBy: "",
-        pricingQuotation: "",
-        tradeCreatedOn: "",
-        quantityBBL: "",
+        pricing_period_from: "",
+        broker_charges: "",
+        group_name: "",
+        traded_by: "",
+        pricing_quotation: "",
+        trade_created_on: "",
+        quantitybbL: "",
         To: "",
-        duedate: "",
-        emailID: ""
+        due_date: "",
+        email_id: ""
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,104 +60,102 @@ const AddNewTrade: React.FC = () => {
 
     const validateForm = () => {
         for (let key in formData) {
-            if ((formData as any)[key] === "") {
+            if ((formData as any)[key] === "" && key !== 'id') {
                 return "Please fill in all required fields.";
             }
         }
         return null;
     };
-    
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setSuccess(false);
-    
+
         const validationError = validateForm();
         if (validationError) {
             setError(validationError);
             return;
         }
-    
+
         setIsSubmitting(true);
-    
         let accessToken = localStorage.getItem("access_token");
         const refreshToken = localStorage.getItem("refresh_token");
-    
-        const isUpdate = !!formData.id; // If formData contains an 'id', it's an update
-    
-        const makeRequest = async (token: string | null) => {
-            return await fetch(`${API_URL}/paper_trades/api/hedging/`, {
+
+        const isUpdate = !!formData.id;
+        const url = isUpdate
+            ? `${API_URL}/paper_trades/api/hedging/${formData.id}/`
+            : `${API_URL}/paper_trades/api/hedging/`;
+        console.log("formData", formData);
+        console.log("accessToken", accessToken);
+        const makeRequest = async (accessToken: string | null) => {
+            return await fetch(url, {
                 method: isUpdate ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify(formData),
             });
         };
-    
+
         try {
             let response = await makeRequest(accessToken);
-    
-            // If token is expired, try refreshing and retrying
             if (response.status === 401 && refreshToken) {
                 const refreshResponse = await fetch(`${API_URL}/api/token/refresh/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    },
+                      },
                     body: JSON.stringify({ refresh: refreshToken }),
                 });
-    
+
                 if (refreshResponse.ok) {
                     const refreshData = await refreshResponse.json();
                     accessToken = refreshData.access;
                     localStorage.setItem("access_token", accessToken);
-    
-                    response = await makeRequest(accessToken); // Retry request
+                    response = await makeRequest(accessToken);
                 } else {
+                    // Handle refresh failure.  Important:  Clear tokens.
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
                     throw new Error("Session expired. Please log in again.");
                 }
             }
-    
+
             const data = await response.json();
-            console.log('Fetch data:', data);
-    
+
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to submit trade');
+                throw new Error(data.error || `Failed to ${isUpdate ? 'update' : 'create'} trade`);
             }
-    
+
             setSuccess(true);
             setFormData({
-                id: "", // clear ID as well, especially after an update
                 inventory: "",
-                quantityMT: "",
-                brokerName: "",
-                boughtSold: "",
-                fixedPrice: "",
-                brokerChargesUnit: "",
+                Quantity_mt: "",
+                broker_name: "",
+                bought_sold: "",
+                fixed_price: "",
+                broker_charges_unit: "",
                 counterparty: "",
-                pricingPeriodFrom: "",
-                brokerCharges: "",
-                groupName: "",
-                tradedBy: "",
-                pricingQuotation: "",
-                tradeCreatedOn: "",
-                quantityBBL: "",
+                pricing_period_from: "",
+                broker_charges: "",
+                group_name: "",
+                traded_by: "",
+                pricing_quotation: "",
+                trade_created_on: "",
+                quantitybbL: "",
                 To: "",
-                duedate: "",
-                emailID: ""
+                due_date: "",
+                email_id: ""
             });
-    
+
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {
             setIsSubmitting(false);
         }
     };
-    
-    
-
     return (
         <div style={{
             display: 'flex',
@@ -167,7 +164,6 @@ const AddNewTrade: React.FC = () => {
             position: 'relative',
             backgroundColor: '#f5f5f5',
         }}>
-            {/* Header with colored rectangle */}
             <div style={{
                 backgroundColor: '#e9ecef',
                 padding: '20px 0',
@@ -180,7 +176,7 @@ const AddNewTrade: React.FC = () => {
                     fontWeight: 'bold',
                     margin: 0
                 }}>
-                    Paper Transaction
+                    {formData.id ? 'Edit Trade' : 'Paper Transaction'}
                 </h2>
             </div>
 
@@ -193,7 +189,7 @@ const AddNewTrade: React.FC = () => {
                 {/* Success/Error Alerts */}
                 {success && (
                     <Alert variant="success" onClose={() => setSuccess(false)} dismissible>
-                        Trade created successfully!
+                        Trade {formData.id ? 'updated' : 'created'} successfully!
                     </Alert>
                 )}
                 {error && (
@@ -221,7 +217,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="number"
                                     name="quantityMT"
-                                    value={formData.quantityMT}
+                                    value={formData.Quantity_mt}
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
@@ -230,7 +226,7 @@ const AddNewTrade: React.FC = () => {
 
                             <Form.Group controlId="brokerName" className="mt-3">
                                 <Form.Label>Broker name</Form.Label>
-                                <Form.Select name="brokerName" value={formData.brokerName} onChange={handleChange}>
+                                <Form.Select name="brokerName" value={formData.broker_name} onChange={handleChange}>
                                     <option value="">Select</option>
                                     <option value="Broker1">Broker 1</option>
                                     <option value="Broker2">Broker 2</option>
@@ -242,7 +238,7 @@ const AddNewTrade: React.FC = () => {
                         <Col md={3}>
                             <Form.Group controlId="boughtSold">
                                 <Form.Label>Bought/Sold</Form.Label>
-                                <Form.Select name="boughtSold" value={formData.boughtSold} onChange={handleChange} required>
+                                <Form.Select name="boughtSold" value={formData.bought_sold} onChange={handleChange} required>
                                     <option value="">Select</option>
                                     <option value="Bought">Bought</option>
                                     <option value="Sold">Sold</option>
@@ -254,7 +250,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="number"
                                     name="fixedPrice"
-                                    value={formData.fixedPrice}
+                                    value={formData.fixed_price}
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
@@ -264,7 +260,7 @@ const AddNewTrade: React.FC = () => {
 
                             <Form.Group controlId="brokerChargesUnit" className="mt-3">
                                 <Form.Label>Broker Charges Unit</Form.Label>
-                                <Form.Select name="brokerChargesUnit" value={formData.brokerChargesUnit} onChange={handleChange}>
+                                <Form.Select name="brokerChargesUnit" value={formData.broker_charges_unit} onChange={handleChange}>
                                     <option value="">Select</option>
                                     <option value="USD">USD</option>
                                     <option value="EUR">EUR</option>
@@ -293,7 +289,7 @@ const AddNewTrade: React.FC = () => {
                                         <Form.Control
                                             type="date"
                                             name="pricingPeriodFrom"
-                                            value={formData.pricingPeriodFrom}
+                                            value={formData.pricing_period_from}
                                             onChange={handleChange}
                                             required
                                         />
@@ -316,7 +312,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="number"
                                     name="brokerCharges"
-                                    value={formData.brokerCharges}
+                                    value={formData.broker_charges}
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
@@ -328,7 +324,7 @@ const AddNewTrade: React.FC = () => {
                         <Col md={3}>
                             <Form.Group controlId="groupName">
                                 <Form.Label>Group Name</Form.Label>
-                                <Form.Select name="groupName" value={formData.groupName} onChange={handleChange}>
+                                <Form.Select name="groupName" value={formData.group_name} onChange={handleChange}>
                                     <option value="">Select</option>
                                     <option value="Group1">Group 1</option>
                                     <option value="Group2">Group 2</option>
@@ -338,7 +334,7 @@ const AddNewTrade: React.FC = () => {
 
                             <Form.Group controlId="tradedBy" className="mt-3">
                                 <Form.Label>Traded By</Form.Label>
-                                <Form.Select name="tradedBy" value={formData.tradedBy} onChange={handleChange}>
+                                <Form.Select name="tradedBy" value={formData.traded_by} onChange={handleChange}>
                                     <option value="">Select</option>
                                     <option value="Trader1">Trader 1</option>
                                     <option value="Trader2">Trader 2</option>
@@ -347,7 +343,7 @@ const AddNewTrade: React.FC = () => {
 
                             <Form.Group controlId="pricingQuotation" className="mt-3">
                                 <Form.Label>Pricing Quotation</Form.Label>
-                                <Form.Select name="pricingQuotation" value={formData.pricingQuotation} onChange={handleChange}>
+                                <Form.Select name="pricingQuotation" value={formData.pricing_quotation} onChange={handleChange}>
                                     <option value="">Select</option>
                                     <option value="Quote1">Quote 1</option>
                                     <option value="Quote2">Quote 2</option>
@@ -364,7 +360,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="date"
                                     name="tradeCreatedOn"
-                                    value={formData.tradeCreatedOn}
+                                    value={formData.trade_created_on}
                                     onChange={handleChange}
                                     required
                                 />
@@ -377,7 +373,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="number"
                                     name="quantityBBL"
-                                    value={formData.quantityBBL}
+                                    value={formData.quantitybbL}
                                     onChange={handleChange}
                                     min="0"
                                     step="0.01"
@@ -386,12 +382,12 @@ const AddNewTrade: React.FC = () => {
                         </Col>
 
                         <Col md={3}>
-                            <Form.Group controlId="duedate" className="mt-3">
+                            <Form.Group controlId="dueDate" className="mt-3">
                                 <Form.Label>Due date (in days)</Form.Label>
                                 <Form.Control
                                     type="number"
-                                    name="duedate"
-                                    value={formData.duedate}
+                                    name="dueDate"
+                                    value={formData.due_date}
                                     onChange={handleChange}
                                     min="0"
                                 />
@@ -404,7 +400,7 @@ const AddNewTrade: React.FC = () => {
                                 <Form.Control
                                     type="email"
                                     name="emailID"
-                                    value={formData.emailID}
+                                    value={formData.email_id}
                                     onChange={handleChange}
                                 />
                             </Form.Group>
@@ -436,7 +432,6 @@ const AddNewTrade: React.FC = () => {
                 </Form>
             </Container>
 
-            {/* Fixed Footer with space at bottom */}
             <footer style={{
                 position: 'fixed',
                 bottom: '0',
