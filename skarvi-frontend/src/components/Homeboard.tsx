@@ -4,8 +4,8 @@ import { PieChart, Pie, Cell, Legend, Tooltip } from 'recharts';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as BarTooltip, Legend as BarLegend } from 'recharts';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import 'react-calendar/dist/Calendar.css';
-import WorldMap from './components/WorldMap';
-import './components/Dashboard.css'; // Importing the new CSS file
+import WorldMap from './WorldMap';
+import './Dashboard.css'; // Importing the new CSS file
 
 const Dashboard = () => {
   // Data for various charts and tables

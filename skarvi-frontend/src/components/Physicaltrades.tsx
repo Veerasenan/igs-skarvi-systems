@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Row, Col, Card, Button, Breadcrumb  } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import "./components/Physicaltrades.css";
+import "./Physicaltrades.css";
 import { useNavigate } from "react-router-dom";
 
 const PhysicalTrades: React.FC = () => {

@@ -1,11 +1,44 @@
 import React, { useState } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../components/Navbar.css";
 
 const CustomNavbar: React.FC = () => {
   const [ALink, setALink] = useState<string>("db");
   const [isTradesOpen, setIsTradesOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refresh_token");
+    const accessToken = localStorage.getItem("access_token");
+
+    try {
+      if (refreshToken && accessToken) {
+        await axios.post(
+          "http://localhost:8000/api/auth/logout/",
+          { refresh: refreshToken },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      }
+    } catch (error) {
+      try {
+        // some code that might throw an error
+      } catch (error) {
+        const e = error as Error; // Type assertion
+        console.log(e.message); 
+      }
+          }
+
+    // Clear local storage and redirect to login
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    navigate("/");
+  };
 
   return (
     <Navbar expand="lg" bg="" variant="light" className="shadow-sm" style={{ backgroundColor: "#1F325C", fontFamily: 'Roboto, sans-serif' }}>
@@ -36,14 +69,14 @@ const CustomNavbar: React.FC = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto" style={{ gap: "10px", width: "100%", justifyContent: "flex-end", paddingTop: "1px", paddingLeft: "20px", backgroundColor: "transparent" }}>
             <Nav.Link as={Link} to="/" onClick={() => setALink("db")} style={{ backgroundColor: ALink === "db" ? "white" : "transparent", color: ALink === "db" ? "black" : "white", borderRadius: ALink === "db" ? "5px" : "0px" }}>Dashboard</Nav.Link>
-            {/* Trades Dropdown */}
+
             <NavDropdown
               title="Trades"
               id="navbar-dropdown-trades"
               className="trades-dropdown"
-              show={isTradesOpen} // Control the dropdown open state
-              onMouseEnter={() => setIsTradesOpen(true)} // Open on hover
-              onMouseLeave={() => setIsTradesOpen(false)} // Close on hover out
+              show={isTradesOpen}
+              onMouseEnter={() => setIsTradesOpen(true)}
+              onMouseLeave={() => setIsTradesOpen(false)}
             >
               <NavDropdown.Item as={Link} to="/physical-trades"
                 onClick={() => setALink("physical-trades")}
@@ -55,8 +88,18 @@ const CustomNavbar: React.FC = () => {
               >
                 Physical Trades
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/paper-trades" onClick={() => setALink("paper-trades")} className="trades-dropdown-item" style={{ backgroundColor: ALink === "paper-trades" ? "#bfdbf7" : "transparent", color: ALink === "paper-trades" ? "black" : "white", }}>Paper Trades</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/paper-trades"
+                onClick={() => setALink("paper-trades")}
+                className="trades-dropdown-item"
+                style={{
+                  backgroundColor: ALink === "paper-trades" ? "#bfdbf7" : "transparent",
+                  color: ALink === "paper-trades" ? "black" : "white",
+                }}
+              >
+                Paper Trades
+              </NavDropdown.Item>
             </NavDropdown>
+
             <Nav.Link as={Link} to="/chartering" onClick={() => setALink("chartering")} style={{ backgroundColor: ALink === "chartering" ? "white" : "transparent", color: ALink === "chartering" ? "black" : "white", borderRadius: ALink === "chartering" ? "5px" : "0px" }}>Chartering</Nav.Link>
             <Nav.Link as={Link} to="/reports" onClick={() => setALink("reports")} style={{ backgroundColor: ALink === "reports" ? "white" : "transparent", color: ALink === "reports" ? "black" : "white", borderRadius: ALink === "reports" ? "5px" : "0px" }}>Reports</Nav.Link>
             <Nav.Link as={Link} to="/operationsandlogistics" onClick={() => setALink("operationsandlogistics")} style={{ backgroundColor: ALink === "operationsandlogistics" ? "white" : "transparent", color: ALink === "operationsandlogistics" ? "black" : "white", borderRadius: ALink === "operationsandlogistics" ? "5px" : "0px" }}>Operations & Logistics</Nav.Link>
@@ -67,7 +110,14 @@ const CustomNavbar: React.FC = () => {
               <img src="/usericon.jpeg" alt="User Icon" className="user-icon" style={{ width: "20px", height: "20px", borderRadius: "50%", marginTop: "10px", marginLeft: "3px" }} />
             </Nav.Item>
             <NavDropdown title={<span id="logout">User</span>} id="navbar-dropdown" className="logout-dropdown" style={{ paddingLeft: "20px" }}>
-              <NavDropdown.Item as="button" onClick={(e) => e.preventDefault()} className="logout-item" style={{ padding: "2px 6px", margin: "0", height: "26px" }}>Logout</NavDropdown.Item>
+              <NavDropdown.Item
+                as="button"
+                onClick={handleLogout}
+                className="logout-item"
+                style={{ padding: "2px 6px", margin: "0", height: "26px" }}
+              >
+                Logout
+              </NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>
