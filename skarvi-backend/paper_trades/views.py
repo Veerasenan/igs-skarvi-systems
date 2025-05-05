@@ -79,10 +79,10 @@ class HedgingAPIView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
+            print("Received data:", data)
             required_fields = [
-                'inventory', 'boughtSold', 'fixedPrice',
-                'pricingPeriodFrom', 'To', 'tradeCreatedOn'
-            ]
+                'fixed_price',
+                'pricing_period_from']
             missing_fields = [field for field in required_fields if field not in data or not data[field]]
             if missing_fields:
                 return Response(
@@ -91,46 +91,40 @@ class HedgingAPIView(APIView):
                 )
 
             with transaction.atomic():
-                quantity = float(data.get('quantityBBL', '0').replace(',', ''))
-                quantity_mt = float(data.get('quantityMT', '0').replace(',', ''))
-                fixed_price = float(data.get('fixedPrice', '0').replace(',', ''))
+                quantity_mt = float(data.get('quantity_mt', 0))
+                fixed_price = float(data.get('fixed_price', 0))
 
                 leg1 = 0
-                if data.get('pricingQuotation'):
+                if data.get('pricing_quotation'):
                     avg_price = FwdPriceQuotesValues.objects.filter(
-                        quote_name=data['pricingQuotation'],
-                        period_from=data['pricingPeriodFrom'],
-                        period_to=data['To']
+                        quote_name=data['pricing_quotation'],
+                        period_from=data['pricing_period_from'],
+                        period_to=data['pricing_period_to']
                     ).aggregate(Avg('value'))['value__avg'] or 0
 
-                    if data['boughtSold'] == 'Bought':
-                        leg1 = (float(avg_price) - fixed_price) * quantity
-                    else:
-                        leg1 = (fixed_price - float(avg_price)) * quantity
 
                 hedging = HedgingSpr.objects.create(
-                    Tran_Ref_No=data['inventory'],
-                    type=data['boughtSold'],
-                    fixed_price=fixed_price,
-                    pricing_period_from=data['pricingPeriodFrom'],
-                    pricing_period_to=data['To'],
-                    traded_on=datetime.strptime(data['tradeCreatedOn'], '%Y-%m-%d').date(),
-                    Quantity=quantity,
-                    Quantity_mt=quantity_mt,
-                    broker_name=data.get('brokerName', ''),
-                    counterparty=data.get('counterparty', 'ICE EUROPE'),
-                    group_name=data.get('groupName', ''),
-                    pricing_basis1=data.get('pricingQuotation', ''),
-                    broker_charges=data.get('brokerCharges', ''),
-                    charges_unit=data.get('brokerChargesUnit', ''),
-                    emailID=data.get('emailID', ''),
-                    duedate=data.get('duedate', ''),
-                    leg1_fix=leg1,
-                    leg2_fix=0,
-                    leg1_float=0,
-                    leg2_float=0,
-                    hedging_type='FlatPrice',
-                    paper='Paper',
+                    tran_ref_no=data.get('tran_ref_no'),
+                    transaction_type=data.get('transaction_type'),
+                    fixed_price=data.get('fixed_price'),
+                    pricing_period_from=data.get('pricing_period_from'),
+                    pricing_period_to=data.get('pricing_period_to'),
+                    traded_on=data.get('traded_on'),
+                    quantity_mt=data.get('quantity_mt'),
+                    broker_name=data.get('broker_name', ''),
+                    counterparty=data.get('counterparty', ''),
+                    group_name=data.get('group_name', ''),
+                    pricing_basis1=data.get('pricing_quotation', ''),
+                    broker_charges=data.get('broker_charges', ''),
+                    charges_unit=data.get('broker_charges_unit', ''),
+                    email_id=data.get('email_id', ''),
+                    due_date=data.get('due_date', ''),
+                    leg1_fix=data.get('leg1_fix'),
+                    leg2_fix=data.get('leg2_fix'),
+                    leg1_float=data.get('leg1_float'),
+                    leg2_float=data.get('leg2_float'),
+                    hedging_type=data.get('hedging_type', ''),
+                    paper=data.get('paper', ''),
                     traded_by=request.user
                 )
 
@@ -151,8 +145,7 @@ class HedgingAPIView(APIView):
         request_body=HedgingSprSerializer,
         responses={200: HedgingSprSerializer},
         operation_description="Update an existing hedging trade by ID.",
-        manual_parameters=[
-            openapi.Parameter('trade_id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
+        manual_parameters=[openapi.Parameter('id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
         ]
     )
     def put(self, request, id, *args, **kwargs):  
@@ -168,39 +161,25 @@ class HedgingAPIView(APIView):
                     )
 
                 with transaction.atomic():
-                    quantity = float(data.get('Quantity', '0'))
-                    quantity_mt = float(data.get('Quantity_mt', '0'))
-                    fixed_price = float(data.get('fixedPrice', '0'))
-
-                    leg1 = 0
-                    if data.get('pricing_basis1'):
-                        avg_price = 0
-                        if data['boughtSold'] == 'Bought':
-                            leg1 = (float(avg_price) - fixed_price) * quantity
-                        else:
-                            leg1 = (fixed_price - float(avg_price)) * quantity
-
-                    traded_on_date = (data['tradeCreatedOn'])
-                    pricing_period_from_date = (data['pricingPeriodFrom'])
-                    pricing_period_to_date = (data['To'])
+                    quantity_mt = float(data.get('quantity_mt', trade.quantity_mt))
+                    fixed_price = float(data.get('fixed_price', trade.fixed_price))
 
                     # Update trade fields
-                    trade.Tran_Ref_No = data['inventory']
-                    trade.type = data['boughtSold']
-                    trade.fixed_price = data.get('fixed_price', fixed_price)
-                    trade.pricing_period_from = data.get('pricing_period_from', pricing_period_from_date)
+                    trade.tran_ref_no = data.get('tran_ref_no', trade.tran_ref_no)
+                    trade.transaction_type = data.get('transaction_type', trade.transaction_type)
+                    trade.fixed_price = data.get('fixed_price', trade.fixed_price)
+                    trade.pricing_period_from = data.get('pricing_period_from', trade.pricing_period_from)
                     trade.pricing_period_to = data.get('pricing_period_to', trade.pricing_period_to)
-                    trade.traded_on = data.get('trade_created_on', trade.traded_on)
-                    trade.Quantity = data.get('Quantity', quantity)
-                    trade.Quantity_mt = data.get('Quantity_mt', quantity_mt)
+                    trade.traded_on = data.get('traded_on', trade.traded_on)
+                    trade.quantity_mt = data.get('quantity_mt',trade.quantity_mt)
                     trade.broker_name = data.get('broker_name', trade.broker_name)
                     trade.counterparty = data.get('counterparty', trade.counterparty)
                     trade.group_name = data.get('group_name',trade.group_name)
                     trade.pricing_basis1 = data.get('pricing_basis1', trade.pricing_basis1)
                     trade.broker_charges = data.get('broker_charges', trade.broker_charges)
                     trade.charges_unit = data.get('broker_charges_unit', trade.charges_unit)
-                    trade.emailID = data.get('email_id', trade.emailID)
-                    trade.duedate = data.get('due_date', trade.duedate)
+                    trade.email_id = data.get('email_id', trade.email_id)
+                    trade.due_date = data.get('due_date', trade.due_date)
                     trade.leg1_fix = data.get('leg1_fix', trade.leg1_fix)
                     trade.traded_by = request.user
 
@@ -220,9 +199,9 @@ class HedgingAPIView(APIView):
                 print(f"Exception: {e}")
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    def patch(self, request, trade_id, *args, **kwargs):
+    def patch(self, request, id, *args, **kwargs):
         try:
-            trade = self.get_trade(trade_id)
+            trade = self.get_trade(id=id)
             if not trade:
                 return Response({"error": "Trade not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -243,12 +222,12 @@ class HedgingAPIView(APIView):
         responses={204: "Trade deleted successfully", 404: "Trade Not Found"},
         operation_description="Delete a hedging trade by ID.",
         manual_parameters=[
-            openapi.Parameter('trade_id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
+            openapi.Parameter('id', openapi.IN_PATH, description="ID of the trade", type=openapi.TYPE_INTEGER)
         ]
     )
-    def delete(self, request, trade_id, *args, **kwargs):
+    def delete(self, request, id, *args, **kwargs):
         try:
-            trade = self.get_trade(trade_id)
+            trade = self.get_trade(id=id)
             if not trade:
                 return Response({"error": "Trade not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -274,10 +253,10 @@ class HedgingListAPIView(ListAPIView):
     def get_queryset(self):
         queryset = HedgingSpr.objects.all().order_by('-DateCreated')
 
-        # Filter by type
-        trade_type = self.request.query_params.get('type')
-        if trade_type in ['Bought', 'Sold']:
-            queryset = queryset.filter(type=trade_type)
+        # # Filter by type
+        # trade_type = self.request.query_params.get('transaction_type')
+        # if trade_type in ['Bought', 'Sold']:
+        #     queryset = queryset.filter(transaction_type=trade_type)
 
         # Filter by trade date
         date_from = self.request.query_params.get('date_from')
@@ -308,9 +287,9 @@ class HedgingListAPIView(ListAPIView):
         queryset = HedgingSpr.objects.all().order_by('-DateCreated')
 
         # Filter by type
-        trade_type = self.request.query_params.get('type')
+        trade_type = self.request.query_params.get('transaction_type')
         if trade_type in ['Bought', 'Sold']:
-            queryset = queryset.filter(type=trade_type)
+            queryset = queryset.filter(transaction_type=trade_type)
 
         # Filter by trade date
         date_from = self.request.query_params.get('date_from')

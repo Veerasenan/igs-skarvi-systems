@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
     'rest_framework_simplejwt',
     'django.contrib.admin',
@@ -66,6 +67,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+SIMPLEJWT = {
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': False,
+}
 
 ROOT_URLCONF = 'skarvi.urls'
 
