@@ -36,33 +36,116 @@ const CustomNavbar: React.FC = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto" style={{ gap: "10px", width: "100%", justifyContent: "flex-end", paddingTop: "1px", paddingLeft: "20px", backgroundColor: "transparent" }}>
             <Nav.Link as={Link} to="/" onClick={() => setALink("db")} style={{ backgroundColor: ALink === "db" ? "white" : "transparent", color: ALink === "db" ? "black" : "white", borderRadius: ALink === "db" ? "5px" : "0px" }}>Dashboard</Nav.Link>
+
             {/* Trades Dropdown */}
             <NavDropdown
               title="Trades"
               id="navbar-dropdown-trades"
               className="trades-dropdown"
-              show={isTradesOpen} // Control the dropdown open state
-              onMouseEnter={() => setIsTradesOpen(true)} // Open on hover
-              onMouseLeave={() => setIsTradesOpen(false)} // Close on hover out
+              show={isTradesOpen}
+              onMouseEnter={() => setIsTradesOpen(true)}
+              onMouseLeave={() => setIsTradesOpen(false)}
             >
-              <NavDropdown.Item as={Link} to="/physical-trades"
-                onClick={() => setALink("physical-trades")}
+              <NavDropdown.Item
+                href="https://www.skarvisystems.co.uk/ELIN/menu/physical_trade_dashboard"
+                target="_blank"
                 className="trades-dropdown-item"
                 style={{
                   backgroundColor: ALink === "physical-trades" ? "#bfdbf7" : "transparent",
                   color: ALink === "physical-trades" ? "black" : "white",
                 }}
+                onClick={() => setALink("physical-trades")}
               >
                 Physical Trades
               </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/paper-trades" onClick={() => setALink("paper-trades")} className="trades-dropdown-item" style={{ backgroundColor: ALink === "paper-trades" ? "#bfdbf7" : "transparent", color: ALink === "paper-trades" ? "black" : "white", }}>Paper Trades</NavDropdown.Item>
+
+              <NavDropdown.Item
+                href="https://www.skarvisystems.co.uk/ELIN/menu/Hedging"
+                target="_blank"
+                className="trades-dropdown-item"
+                style={{
+                  backgroundColor: ALink === "paper-trades" ? "#bfdbf7" : "transparent",
+                  color: ALink === "paper-trades" ? "black" : "white",
+                }}
+                onClick={() => setALink("paper-trades")}
+              >
+                Paper Trades
+              </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link as={Link} to="/chartering" onClick={() => setALink("chartering")} style={{ backgroundColor: ALink === "chartering" ? "white" : "transparent", color: ALink === "chartering" ? "black" : "white", borderRadius: ALink === "chartering" ? "5px" : "0px" }}>Chartering</Nav.Link>
-            <Nav.Link as={Link} to="/reports" onClick={() => setALink("reports")} style={{ backgroundColor: ALink === "reports" ? "white" : "transparent", color: ALink === "reports" ? "black" : "white", borderRadius: ALink === "reports" ? "5px" : "0px" }}>Reports</Nav.Link>
-            <Nav.Link as={Link} to="/operationsandlogistics" onClick={() => setALink("operationsandlogistics")} style={{ backgroundColor: ALink === "operationsandlogistics" ? "white" : "transparent", color: ALink === "operationsandlogistics" ? "black" : "white", borderRadius: ALink === "operationsandlogistics" ? "5px" : "0px" }}>Operations & Logistics</Nav.Link>
-            <Nav.Link as={Link} to="/inventorymanagement" onClick={() => setALink("inventorymanagement")} style={{ backgroundColor: ALink === "inventorymanagement" ? "white" : "transparent", color: ALink === "inventorymanagement" ? "black" : "white", borderRadius: ALink === "inventorymanagement" ? "5px" : "0px" }}>Inventory Management</Nav.Link>
-            <Nav.Link as={Link} to="/endofday" onClick={() => setALink("endofday")} style={{ backgroundColor: ALink === "endofday" ? "white" : "transparent", color: ALink === "endofday" ? "black" : "white", borderRadius: ALink === "endofday" ? "5px" : "0px" }}>End of Day</Nav.Link>
-            <Nav.Link as={Link} to="/admintools" onClick={() => setALink("admintools")} style={{ backgroundColor: ALink === "admintools" ? "white" : "transparent", color: ALink === "admintools" ? "black" : "white", borderRadius: ALink === "admintools" ? "5px" : "0px" }}>Admin Tools</Nav.Link>
+
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/Chartering_Dashboard"
+              target="_blank"
+              onClick={() => setALink("chartering")}
+              style={{
+                backgroundColor: ALink === "chartering" ? "white" : "transparent",
+                color: ALink === "chartering" ? "black" : "white",
+                borderRadius: ALink === "chartering" ? "5px" : "0px"
+              }}
+            >
+              Chartering
+            </Nav.Link>
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/reports_tab"
+              target="_blank"
+              onClick={() => setALink("reports")}
+              style={{
+                backgroundColor: ALink === "reports" ? "white" : "transparent",
+                color: ALink === "reports" ? "black" : "white",
+                borderRadius: ALink === "reports" ? "5px" : "0px"
+              }}
+            >
+              Reports
+            </Nav.Link>
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/operations_logistics"
+              target="_blank"
+              onClick={() => setALink("operationsandlogistics")}
+              style={{
+                backgroundColor: ALink === "operationsandlogistics" ? "white" : "transparent",
+                color: ALink === "operationsandlogistics" ? "black" : "white",
+                borderRadius: ALink === "operationsandlogistics" ? "5px" : "0px"
+              }}
+            >
+              Operations & Logistics
+            </Nav.Link>
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/inventory"
+              target="_blank"
+              onClick={() => setALink("inventorymanagement")}
+              style={{
+                backgroundColor: ALink === "inventorymanagement" ? "white" : "transparent",
+                color: ALink === "inventorymanagement" ? "black" : "white",
+                borderRadius: ALink === "inventorymanagement" ? "5px" : "0px"
+              }}
+            >
+              Inventory Management
+            </Nav.Link>
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/End_of_Day"
+              target="_blank"
+              onClick={() => setALink("endofday")}
+              style={{
+                backgroundColor: ALink === "endofday" ? "white" : "transparent",
+                color: ALink === "endofday" ? "black" : "white",
+                borderRadius: ALink === "endofday" ? "5px" : "0px"
+              }}
+            >
+              End of Day
+            </Nav.Link>
+            <Nav.Link
+              href="https://www.skarvisystems.co.uk/ELIN/menu/admin_tools"
+              target="_blank"
+              onClick={() => setALink("admintools")}
+              style={{
+                backgroundColor: ALink === "admintools" ? "white" : "transparent",
+                color: ALink === "admintools" ? "black" : "white",
+                borderRadius: ALink === "admintools" ? "5px" : "0px"
+              }}
+            >
+              Admin Tools
+            </Nav.Link>
+
             <Nav.Item className="user-nav-item">
               <img src="/usericon.jpeg" alt="User Icon" className="user-icon" style={{ width: "20px", height: "20px", borderRadius: "50%", marginTop: "10px", marginLeft: "3px" }} />
             </Nav.Item>
