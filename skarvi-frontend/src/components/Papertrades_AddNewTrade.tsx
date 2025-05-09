@@ -15,7 +15,7 @@ interface FormData {
     pricing_period_from: string;
     broker_charges: string;
     group_name: string;
-    traded_by?: string; // Traded by is set on the server
+    traded_by?: string; 
     pricing_quotation: string;
     traded_on: string;
     quantitybbL: string;
@@ -98,8 +98,8 @@ const AddNewTrade: React.FC<{ tradeData?: FormData; onUpdate?: (updatedTrade: Fo
         const refreshToken = localStorage.getItem("refresh_token");
         const isUpdate = !!formData.id;
         const url = isUpdate
-            ? `${API_URL}/paper_trades/api/hedging/${formData.id}/`
-            : `${API_URL}/paper_trades/api/hedging/`;
+            ? `${API_URL}/paper_trades/hedging/${formData.id}/`
+            : `${API_URL}/paper_trades/hedging/`;
 
         const makeRequest = async (accessToken: string | null) => {
             return await fetch(url, {
