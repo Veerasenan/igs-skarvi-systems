@@ -1,4 +1,6 @@
+import pandas as pd
 from django.db.models import Avg
+from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -374,83 +376,106 @@ class HedgingDuplicateView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
+import logging
+logger = logging.getLogger(__name__)
+
+def clean_headers(headers):
+    # Clean headers to remove NaN values or replace them with meaningful defaults
+    return [header if header is not None and pd.notna(header) else f"Unnamed_{idx}" for idx, header in enumerate(headers)]
 
 class HedgingBulkUploadView(APIView):
-    """
-    Upload multiple hedging trades from paper trades.
-    """
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser]
 
     def post(self, request):
-        data = request.data
-        approved_indices = data.get("approve", [])
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No Excel file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            for i in approved_indices:
-                raw_ref = data["tran_ref_no"][i]
-                ref_parts = raw_ref.split(" - ")
-                tran_ref_no = ref_parts[0]
+            df = pd.read_excel(file, header=None)
+            print("Initial df.head(10):\n", df.head(10))
 
-                purchase_contract_id = ''
-                sale_contract_id = ''
-                if len(ref_parts) > 1:
-                    tail = ref_parts[1]
-                    if "-9" in tail:
-                        purchase_contract_id = tail.split("-9")[0]
-                    if "-0" in tail:
-                        sale_contract_id = tail.split("-0")[0]
+            cleared_deals_row = df[df.apply(lambda row: row.astype(str).str.contains("Cleared Deals", case=False).any(), axis=1)]
+            if cleared_deals_row.empty:
+                return Response({"error": "Could not find 'Cleared Deals' section in the Excel file."}, status=status.HTTP_400_BAD_REQUEST)
+            cleared_deals_start_index = cleared_deals_row.index[0]
+            print(f"Row index of 'Cleared Deals': {cleared_deals_start_index}")
 
-                HedgingSpr.objects.create(
-                    group_name=data.get("group_name", [None])[i],
-                    leg1_fix=data.get("leg1_fix", [None])[i],
-                    leg2_fix=data.get("leg2_fix", [None])[i],
-                    leg1_float=data.get("leg1_float", [None])[i],
-                    leg2_float=data.get("leg2_float", [None])[i],
-                    hedging_type=data.get("hedging_type", [None])[i],
-                    pricing_basis_sp=data.get("pricing_basis_sp", [None])[i],
-                    pricing_basis_leg1=data.get("pricing_basis_leg1", [None])[i],
-                    pricing_basis_leg2=data.get("pricing_basis_leg2", [None])[i],
-                    pricing_basis_leg3=data.get("pricing_basis_leg3", [None])[i],
-                    pricing_basis_sp1=data.get("pricing_basis_sp1", [None])[i],
-                    pricing_basis_lega=data.get("pricing_basis_lega", [None])[i],
-                    pricing_basis_legb=data.get("pricing_basis_legb", [None])[i],
-                    pricing_basis_legc=data.get("pricing_basis_legc", [None])[i],
-                    sale_contract_id=sale_contract_id,
-                    purchase_contract_id=purchase_contract_id,
-                    tran_ref_no=tran_ref_no,
-                    paper=data.get("paper", [None])[i],
-                    transaction_type=data.get("transaction_type", [None])[i],
-                    counterparty=data.get("counterparty", [None])[i],
-                    pricing_basis1=data.get("pricing_basis1", [None])[i],
-                    pricing_basis2=data.get("pricing_basis2", [None])[i],
-                    quantity=data.get("quantity", [None])[i],
-                    quantity_mt=data.get("quantity_mt", [None])[i],
-                    fixed_price=data.get("fixed_price", [None])[i],
-                    pricing_period_from=parse_date(data.get("pricing_period_from", [None])[i]),
-                    pricing_period_to=parse_date(data.get("pricing_period_to", [None])[i]),
-                    floating_price=data.get("floating_price", [None])[i],
-                    settlement_value=data.get("settlement_value", [None])[i],
-                    settlement_due=data.get("settlement_due", [None])[i],
-                    settlement_date=parse_date(data.get("settlement_date", [None])[i]),
-                    credit_terms1=data.get("credit_terms1", [None])[i],
-                    credit_terms2=data.get("credit_terms2", [None])[i],
-                    broker_name=data.get("broker_name", [None])[i],
-                    broker_charges=data.get("broker_charges", [None])[i],
-                    charges_unit=data.get("charges_unit", [None])[i],
-                    traded_by=request.user,
-                    traded_on=parse_date(data.get("traded_on", [None])[i]),
-                    approved_by=None,
-                    approved_on=None,
-                    stop_loss_limit=data.get("stop_loss_limit", [None])[i],
-                    delete_status=False,
-                    email_id=data.get("email_id", [None])[i],
-                )
+            header_row_index = cleared_deals_start_index + 2
+            if header_row_index >= len(df):
+                return Response({"error": "Could not find headers after 'Cleared Deals' section."}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({"message": "Paper Trades Uploaded Successfully"}, status=status.HTTP_201_CREATED)
+            headers = df.iloc[header_row_index].tolist()
+            print(f"Headers for 'Cleared Deals' section (before cleaning): {headers}")  # <-- ADD THIS LINE
+
+            # Clean headers to remove NaN values or replace with default names
+            headers = clean_headers(headers)
+            print(f"Cleaned headers: {headers}")
+
+            data_start_index = cleared_deals_start_index + 2
+            futures_deals_row = df[df.apply(lambda row: row.astype(str).str.contains("Futures Deals", case=False).any(), axis=1)]
+            data_end_index = futures_deals_row.index[0] if not futures_deals_row.empty else None
+            print(f"End row index for 'Cleared Deals' data: {data_end_index}")
+
+            cleared_df = df.iloc[data_start_index:data_end_index].copy()
+            cleared_df.columns = headers
+            print("cleared_df.head():\n", cleared_df.head())
+
+            cleared_df.dropna(how='all', inplace=True)
+
+            # Remove rows with NaN in important columns (e.g., "Trade Date", "Deal ID")
+            cleared_df = cleared_df.dropna(subset=["Trade Date", "Deal ID"], how="any")
+            print("Filtered cleared_df.head():\n", cleared_df.head())
+
+            created_count = 0
+
+            with transaction.atomic():
+                for index, row in cleared_df.iloc[1:].iterrows():  # Start from the second row
+                    try:
+                        lots_value = row.get("Lots")
+                        quantity = int(lots_value) if pd.notna(lots_value) else 0
+
+                        strike_value = row.get("Strike", "")
+                        delete_status = False
+                        if isinstance(strike_value, str):
+                            delete_status = strike_value.lower() == "yes"
+
+                        HedgingSpr.objects.create(
+                            group_name=row.get("Contract", ""),
+                            tran_ref_no=row.get("Deal ID", ""),
+                            transaction_type=row.get("B/S", ""),
+                            pricing_basis1=row.get("Product", ""),
+                            pricing_basis2=row.get("Hub", ""),
+                            pricing_period_from=parse_date(row.get("Begin Date", "")),
+                            pricing_period_to=parse_date(row.get("End Date", "")),
+                            counterparty=row.get("Cust Acct", ""),
+                            broker_name=row.get("Broker Name") or row.get("Clearing Firm", ""),
+                            fixed_price=row.get("Price") or 0,
+                            charges_unit=row.get("Price Units", ""),
+                            quantity=quantity,
+                            quantity_mt=row.get("Total Quantity") or 0,
+                            paper=row.get("Option", ""),
+                            traded_by=request.user,
+                            traded_on=parse_date(row.get("Trade Date", "")),
+                            email_id=request.user.email,
+                            due_date=None,
+                            delete_status=delete_status,
+                        )
+                        created_count += 1
+                    except Exception as row_error:
+                        logger.error(f"Error creating row: {row.to_dict()} - Error: {row_error}")
+                        continue
+
+            return Response({
+                "message": f"{created_count} Cleared trades uploaded successfully from Excel."
+            }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            logger.error(f"General error: {e}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 # class HedgingListAPIView(ListAPIView):
 #     """

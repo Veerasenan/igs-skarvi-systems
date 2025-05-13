@@ -11,6 +11,6 @@ urlpatterns = [
     # path('paper_trades/hedging/<int:id>/', views.HedgingAPIView.as_view(), name='hedging-detail'),
 
     # path('api/hedging/duplicate/', views.HedgingDuplicateView.as_view(), name='hedging-duplicate'),
-    # path('api/upload-trades/', views.HedgingBulkUploadView.as_view(), name='hedging-upload'),
+    path('upload-trades/', views.HedgingBulkUploadView.as_view(), name='hedging-upload'),
     # path('api/hedging-trades/', views.HedgingAPIView.as_view(), name='hedging-trades'),
 ]

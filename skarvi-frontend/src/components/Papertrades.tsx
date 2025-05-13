@@ -11,6 +11,7 @@ const PaperTradesTable = () => {
   const API_BASE_URL = 'http://127.0.0.1:8000';
   const accessToken = localStorage.getItem("access_token");
 
+
   // Redirect to login page if no access token is found
   useEffect(() => {
     if (!accessToken) {
@@ -54,25 +55,34 @@ const PaperTradesTable = () => {
     }, [accessToken, navigate]);
 
 
-  const handleDelete = async (id: number) => {
+const handleDelete = async (id: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this trade?");
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/paper_trades/hedging/${id}/`, {
+      const response = await fetch(`${API_BASE_URL}/paper_trades/hedging/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${accessToken}`, 
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
       });
 
       if (response.status === 204) {
         alert('Trade deleted successfully!');
-        setTrades(trades.filter((trade) => trade.id !== id)); 
+        setTrades(trades.filter((trade) => trade.id !== id));
+      } else if (response.status === 404) {
+        alert('Error: Trade not found.'); // Handle the 404 specifically
       } else {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.error || 'Failed to delete trade'}`);
+        try {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.error || 'Failed to delete trade'}`);
+        } catch (jsonError) {
+          // If parsing JSON fails (e.g., for a 500 error with a non-JSON response)
+          const errorText = await response.text();
+          console.error("Delete error (non-JSON):", errorText);
+          alert(`Error: Failed to delete trade. Server returned: ${response.status} - ${errorText}`);
+        }
       }
     } catch (error) {
       console.error("Delete error:", error);
@@ -80,16 +90,72 @@ const PaperTradesTable = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setUploadedFile(e.target.files[0]);
-    }
+  const handleFileChange = (e) => {
+    setUploadedFile(e.target.files[0]);
   };
 
-  const handleSubmit = () => {
-    console.log('Uploading file:', uploadedFile);
-    setShowModal(false);
-  };
+  type UploadResponse = {
+  error: string | number;
+  // Add any other expected fields if needed
+};
+
+const handleUpload = async () => {
+    if (!uploadedFile) {
+        alert('Please choose a file first.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/paper_trades/upload-trades/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: formData,
+        });
+
+        const contentType = response.headers.get('content-type');
+        const isJson = contentType && contentType.includes('application/json');
+
+        let result;
+
+        if (isJson) {
+            result = await response.json();
+        } else {
+            const text = await response.text();
+            console.warn('Non-JSON response:', text);
+            throw new Error('Server returned non-JSON response');
+        }
+
+        if (response.ok && response.status === 201) { // Check for successful HTTP status
+            if (result && result.message) {
+                alert(`Upload successful: ${result.message}`);
+                console.log('Upload successful, message:', result.message);
+                // You might want to update your UI here to reflect the success
+            } else {
+                alert('Upload successful, but no message received.');
+                console.warn('Success response missing message:', result);
+            }
+        } else {
+            // Handle error responses
+            if (result && result.error) {
+                alert(`Upload failed: ${result.error}`);
+            } else if (isJson) {
+                alert(`Upload failed. Status: ${response.status}`);
+            } else {
+                alert(`Upload failed. Status: ${response.status}, Response: ${await response.text()}`);
+            }
+            console.error('Upload failed:', result || response.status);
+        }
+
+    } catch (err) {
+        console.error('Error during file upload:', err);
+        alert(`An error occurred while uploading. Check the console for details.`);
+    }
+};
 
   return (
     <>
@@ -380,12 +446,25 @@ const PaperTradesTable = () => {
               <div className="file-input-row">
                 <label className="choose-file-btn" htmlFor="fileInput">Choose File</label>
                 <span>{uploadedFile ? uploadedFile.name : 'No File Chosen'}</span>
-                <input id="fileInput" type="file" accept=".xlsx,.xlsb" onChange={handleFileChange} />
+                <input
+                  id="fileInput"
+                  type="file"
+                  accept=".xlsx,.xlsb"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
               </div>
-            </div>
 
-            <button className="upload-submit-btn" onClick={handleSubmit}>Upload</button>
+              <button
+                className="upload-submit-btn"
+                onClick={handleUpload}
+                disabled={!uploadedFile}
+              >
+                Upload
+              </button>
+            </div>
           </div>
+
         </div>
       )}
     </>
