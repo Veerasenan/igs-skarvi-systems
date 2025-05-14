@@ -7,7 +7,12 @@ const PaperTradesTable = () => {
   const navigate = useNavigate();
   const [trades, setTrades] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);  
-  const [error, setError] = useState<string | null>(null); // Corrected line
+  const [error, setError] = useState<string | null>(null);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchFields, setSearchFields] = useState({
+  transactionRef: '',
+  type: '',});
+
   const API_BASE_URL = 'http://127.0.0.1:8000';
   const accessToken = localStorage.getItem("access_token");
 
@@ -98,6 +103,10 @@ const handleDelete = async (id: number) => {
   error: string | number;
   // Add any other expected fields if needed
 };
+const handleSearchSubmit = () => {
+    console.log('Searching:', searchFields);
+    setShowSearchModal(false);
+  };
 
 const handleUpload = async () => {
     if (!uploadedFile) {
@@ -287,14 +296,20 @@ const handleUpload = async () => {
           }
 
           .upload-modal {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 12px;
-            width: 500px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-            text-align: center;
-          }
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          width: 500px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          position: relative;
+          text-align: center;
+        }
+          .modal-content {
+          background-color: #f7f7f7;
+          padding: 30px;
+          border-radius: 10px;
+          margin-top: 20px;
+        }
 
           .modal-close-icon {
             position: absolute;
@@ -304,27 +319,40 @@ const handleUpload = async () => {
             cursor: pointer;
             color: #999;
           }
-
+          .modal-footer {
+          display: flex;
+          justify-content: center;
+          margin-top: 20px;
+        }
           .upload-header {
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-size: 24px;
-            color: #1F325C;
-            font-weight: bold;
-          }
-
-          .upload-box {
-            background: #f9f9f9;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: left;
-          }
-
+          margin-top: 0;
+          font-size: 24px;
+          color: #1F325C;
+          font-weight: bold;
+        }
+        .modal-content {
+          background-color: #f7f7f7;
+          padding: 30px;
+          border-radius: 10px;
+          margin-top: 20px;
+        }
+        .upload-box {
+          margin-bottom: 30px;
+          text-align: left;
+        }
           .upload-box label {
             font-weight: bold;
             display: block;
             margin-bottom: 15px;
+          }
+
+          .input-transaction{
+          // background-color:rgb(45, 153, 247);
+          border-radius: 5px;
+          border: 1px solid rgb(122, 121, 121);
+          padding: 10px;
+          padding-left: 190px;
+          // margin-bottom: 20px;
           }
 
           .file-input-row {
@@ -379,7 +407,7 @@ const handleUpload = async () => {
             <button className="main-button" onClick={() => navigate('/add-new-trade')}>
               <span>➕</span> Add Trade
             </button>
-            <button className="main-button"><span>🔍</span> Search Trade</button>
+            <button className="main-button" onClick={() => setShowSearchModal(true)}>🔍 Search Trade</button>
             <button className="main-button" onClick={() => setShowModal(true)}><span>📤</span> Upload Excel</button>
             <button className="main-button"><span>📋</span> Copy Trade</button>
             <button className="main-button"><span>⤴</span> Upload Trade</button>
@@ -465,6 +493,35 @@ const handleUpload = async () => {
             </div>
           </div>
 
+        </div>
+      )}
+      {showSearchModal && (
+        <div className="modal-overlay">
+          <div className="upload-modal">
+            <div className="modal-close-icon" onClick={() => setShowSearchModal(false)}>×</div>
+            <h2 className="upload-header">Search Trade</h2>
+            <div className="modal-content">
+              <div className="upload-box">
+                <label>Transaction Ref</label>
+                <input
+                  type="text"
+                  className="input-transaction"
+                  value={searchFields.transactionRef}
+                  onChange={(e) => setSearchFields({ ...searchFields, transactionRef: e.target.value })}
+                />
+                <label>Type</label>
+                <input
+                  type="text"
+                  className="input-transaction"
+                  value={searchFields.type}
+                  onChange={(e) => setSearchFields({ ...searchFields, type: e.target.value })}
+                />
+              </div>
+              <div className="modal-footer">
+                <button className="upload-submit-btn" onClick={handleSearchSubmit}>Search</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </>

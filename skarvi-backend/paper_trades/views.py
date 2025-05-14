@@ -76,10 +76,20 @@ class HedgingAPIView(APIView):
             except HedgingSpr.DoesNotExist:
                 return Response({"error": "Trade not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # No ID provided — return all trades
+        # No ID provided — optionally apply filters
         trades = HedgingSpr.objects.all()
+
+        tran_ref_no = request.GET.get('tran_ref_no  ')
+        transaction_type = request.GET.get('transaction_type')
+
+        if tran_ref_no:
+            trades = trades.filter(tran_ref_no__icontains=tran_ref_no)
+        if transaction_type:
+            trades = trades.filter(transaction_type__icontains=transaction_type)
+
         serializer = HedgingSprSerializer(trades, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     @swagger_auto_schema(
         request_body=HedgingSprSerializer,
