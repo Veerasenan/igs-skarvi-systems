@@ -53,7 +53,7 @@ function App() {
         <Route path="/endofday" element={<ProtectedRoute><EndOfDay /></ProtectedRoute>} />
         <Route path="/admintools" element={<ProtectedRoute><AdminTools /></ProtectedRoute>} />
         <Route path="/development" element={<ProtectedRoute><Development /></ProtectedRoute>} />
-        <Route path="/add-new-trade" element={<ProtectedRoute><AddNewTrade /></ProtectedRoute>} />
+        <Route path="/add-new-trade" element={<AddNewTrade />} />
       </Routes>
     </>
   );

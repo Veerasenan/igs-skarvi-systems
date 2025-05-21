@@ -1,12 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AddNewTrade from '../components/Papertrades_AddNewTrade';
+import { Color } from 'antd/es/color-picker';
+
+
+interface editid{
+  editid: string | number;
+}
 
 const PaperTradesTable = () => {
+ type editFormData = {  
+    id: string | number; 
+    tran_ref_no: string | number;
+    quantity_mt: string | number;
+    broker_name: string | number;
+    transaction_type: string | number;
+    fixed_price: string | number;
+    broker_charges_unit: string | number;
+    counterparty: string | number;
+    pricing_period_from: string | number;
+    broker_charges: string | number;
+    group_name: string | number;
+    traded_by?: string | number; 
+    pricing_quotation: string | number;
+    traded_on: string | number;
+    quantitybbL: string | number;
+    pricing_period_to: string | number;
+    due_date: string | number;
+    email_id: string | number;
+}
+
   const [showModal, setShowModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [selectedCopyOption, setSelectedCopyOption] = useState('');
   const navigate = useNavigate();
+  const [showCopyModal, setShowCopyModal] = useState(false);
   const [trades, setTrades] = useState<any[]>([]);
+  const [tradesedit, setTradesedit] = useState <any>(null);
+  const [editid, seteditid] = useState <string| null>("");
   const [loading, setLoading] = useState<boolean>(true);  
+  const [filteredTrades, setFilteredTrades] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchFields, setSearchFields] = useState({
@@ -17,6 +50,25 @@ const PaperTradesTable = () => {
   const accessToken = localStorage.getItem("access_token");
 
 
+  useEffect(() => {
+  if (tradesedit !== null) {
+    console.log("✅ tradesedit updated:", tradesedit);
+  }
+}, [tradesedit]);
+
+// useEffect(() => {
+// if(tradesedit !== null){
+//         <AddNewTrade tradesedit={tradesedit} />
+//   console.log("tradesedit is not null in useeffect");
+
+// }else{
+//   console.log("tradesedit is null in useeffect");
+// }
+// });
+
+
+
+  console.log("after edit click trade >>",trades)
   // Redirect to login page if no access token is found
   useEffect(() => {
     if (!accessToken) {
@@ -95,18 +147,78 @@ const handleDelete = async (id: number) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    setUploadedFile(e.target.files[0]);
-  };
+  const handleEdit = async (id: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/paper_trades/hedging/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const rawData = await response.json();
+      navigate('/add-new-trade', { state: { tradeData: rawData } }); // Pass data via navigation state
+    } else {
+      // handle error
+    }
+  } catch (error) {
+    // handle error
+  }
+}
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0] || null;
+  setUploadedFile(file);
+};
+
 
   type UploadResponse = {
   error: string | number;
   // Add any other expected fields if needed
 };
 const handleSearchSubmit = () => {
-    console.log('Searching:', searchFields);
-    setShowSearchModal(false);
-  };
+  const filtered = trades.filter((trade) => {
+    const matchesTransactionRef = searchFields.transactionRef
+      ? trade.tran_ref_no?.toLowerCase().includes(searchFields.transactionRef.toLowerCase())
+      : true;
+
+    const matchesType = searchFields.type
+      ? trade.transaction_type?.toLowerCase().includes(searchFields.type.toLowerCase())
+      : true;
+
+    return matchesTransactionRef && matchesType;
+  });
+
+  setFilteredTrades(filtered);
+  setShowSearchModal(false);
+};
+
+const copyTradeOptions = trades.map(trades =>
+  `${trades.pricing_basis2} ${trades.pricing_period_from} - ${trades.pricing_period_to}`
+);
+
+const handleCopySubmit = () => {
+  if (!selectedCopyOption) {
+    // No option selected - do nothing, no message
+    return;
+  }
+
+  // Find the trade object corresponding to the selected option string
+  const selectedTrade = trades.find(trade =>
+    `${trade.pricing_basis2} ${trade.pricing_period_from} - ${trade.pricing_period_to}` === selectedCopyOption
+  );
+
+  if (selectedTrade) {
+    // Perform your copy logic here with selectedTrade
+    // For example, copy the trade data to a form, or make an API call
+    console.log('Copying trade:', selectedTrade);
+
+    // Optionally close the modal after copying
+    setShowCopyModal(false);
+  }
+};
 
 const handleUpload = async () => {
     if (!uploadedFile) {
@@ -143,7 +255,6 @@ const handleUpload = async () => {
             if (result && result.message) {
                 alert(`Upload successful: ${result.message}`);
                 console.log('Upload successful, message:', result.message);
-                // You might want to update your UI here to reflect the success
             } else {
                 alert('Upload successful, but no message received.');
                 console.warn('Success response missing message:', result);
@@ -165,6 +276,7 @@ const handleUpload = async () => {
         alert(`An error occurred while uploading. Check the console for details.`);
     }
 };
+
 
   return (
     <>
@@ -342,7 +454,7 @@ const handleUpload = async () => {
         }
           .upload-box label {
             font-weight: bold;
-            display: block;
+            display: inline;
             margin-bottom: 15px;
           }
 
@@ -351,8 +463,7 @@ const handleUpload = async () => {
           border-radius: 5px;
           border: 1px solid rgb(122, 121, 121);
           padding: 10px;
-          padding-left: 190px;
-          // margin-bottom: 20px;
+          width: 400px;
           }
 
           .file-input-row {
@@ -405,44 +516,49 @@ const handleUpload = async () => {
 
           <div className="button-group">
             <button className="main-button" onClick={() => navigate('/add-new-trade')}>
-              <span>➕</span> Add Trade
+              <span>󠀼󠀼📝</span> Add Trade
             </button>
             <button className="main-button" onClick={() => setShowSearchModal(true)}>🔍 Search Trade</button>
             <button className="main-button" onClick={() => setShowModal(true)}><span>📤</span> Upload Excel</button>
-            <button className="main-button"><span>📋</span> Copy Trade</button>
-            <button className="main-button"><span>⤴</span> Upload Trade</button>
+            <button className="main-button" onClick={() => setShowCopyModal(true)}>📋 Copy Trade</button>
+            <button className="main-button"><span>⤴</span> Trade Validation</button>
           </div>
 
           <table className="trade-table">
             <thead>
               <tr>
-                <th>Unique Ref <span className="filter-icon">⚲</span></th>
-                <th>Trans Ref <span className="filter-icon">⚲</span></th>
-                <th>Trade <span className="filter-icon">⚲</span></th>
-                <th>Trade On <span className="filter-icon">⚲</span></th>
-                <th>Pricing Basis <span className="filter-icon">⚲</span></th>
-                <th>Pricing Period <span className="filter-icon">⚲</span></th>
-                <th>Broker <span className="filter-icon">⚲</span></th>
-                <th>Quantity <span className="filter-icon">⚲</span></th>
-                <th>Fixed Price <span className="filter-icon">⚲</span></th>
+                <th>Unique Ref <span className="filter-icon"></span></th>
+                <th>Trans Ref <span className="filter-icon"></span></th>
+                <th>Trade <span className="filter-icon"></span></th>
+                <th>Trade On <span className="filter-icon"></span></th>
+                <th>Pricing Basis <span className="filter-icon"></span></th>
+                <th>Pricing Period <span className="filter-icon"></span></th>
+                <th>Broker <span className="filter-icon"></span></th>
+                <th>Quantity <span className="filter-icon"></span></th>
+                <th>Fixed Price <span className="filter-icon"></span></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(trades) && trades.map((item) => (
+              {(filteredTrades ?? trades).map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
+                  <td >{item.id}</td>
                   <td>{item.tran_ref_no}</td>
                   <td>{item.transaction_type}</td>
                   <td>{item.traded_on}</td>
-                  <td>{item.Pricing}</td>
-                  <td>{item.pricing_period_from}</td>
+                  <td>{item.pricing_basis2}</td>
+                  <td>{item.pricing_period_from}–{item.pricing_period_to}</td>
                   <td>{item.broker_name}</td>
                   <td>{item.quantity_mt}</td>
                   <td>{item.fixed_price}</td>
                   <td>
-                    <button className="action-button">View</button>
-                    <button className="action-button" onClick={() => navigate('/hedging-trades-detail')}>
+                    <button className="action-button" onClick={() => { handleEdit(item.id);
+                    seteditid(item.id);
+                            // <AddNewTrade editid={editid} />
+
+                   }
+                      
+                    }>
                       <span></span> Edit
                     </button>
                     <button
@@ -495,6 +611,32 @@ const handleUpload = async () => {
 
         </div>
       )}
+      {showCopyModal && (
+        <div className="modal-overlay">
+          <div className="upload-modal">
+            <div className="modal-close-icon" onClick={() => setShowCopyModal(false)}>×</div>
+            <h2 className="upload-header">Copy Trade</h2>
+            <div className="modal-content">
+              <div className="upload-box" style={{backgroundColor:""}}>
+                <label>Pricing Basis/Pricing Period</label>
+
+                <select style={{backgroundColor:"", marginTop:"10px",width:"400px",height:"40px", borderRadius:"6px"}}     value={selectedCopyOption} onChange={(e) => setSelectedCopyOption(e.target.value)}>
+                  <option value="">Select Option</option>
+                  {copyTradeOptions.map((item, index) => (
+                    <option key={index} value={item}>{item}</option>
+                  ))}
+                </select>
+
+
+              </div>
+              <div className="modal-footer">
+                <button className="upload-submit-btn" onClick={handleCopySubmit}>Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSearchModal && (
         <div className="modal-overlay">
           <div className="upload-modal">
@@ -503,11 +645,15 @@ const handleUpload = async () => {
             <div className="modal-content">
               <div className="upload-box">
                 <label>Transaction Ref</label>
-                <input
+                <input 
                   type="text"
                   className="input-transaction"
                   value={searchFields.transactionRef}
-                  onChange={(e) => setSearchFields({ ...searchFields, transactionRef: e.target.value })}
+                  onChange={(e) => {
+                    setSearchFields({ ...searchFields, transactionRef: e.target.value });
+                    setFilteredTrades(null); // Reset view while typing
+                  }}
+
                 />
                 <label>Type</label>
                 <input
@@ -515,6 +661,7 @@ const handleUpload = async () => {
                   className="input-transaction"
                   value={searchFields.type}
                   onChange={(e) => setSearchFields({ ...searchFields, type: e.target.value })}
+                  
                 />
               </div>
               <div className="modal-footer">
