@@ -95,7 +95,8 @@ const Papertrades: React.FC = () => {
         </Col>
 
         {/* Validate ICE Trades for Heavy Products and Entries */}
-        <Col xs={12} sm={6} md={4} lg={4}>
+        <Col xs={12} sm={6} md={4} lg={4}> 
+        
           <Card className="card-custom">
             <Card.Body>
               <FontAwesomeIcon icon={faClipboardCheck} className="card-icon" />
